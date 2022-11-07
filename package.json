@@ -23,13 +23,13 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
     "express": "^4.17.1",
+    "mysql": "^2.18.1",
     "nodemon": "^2.0.14",
     "prettier": "^2.4.1"
   },
   "devDependencies": {
     "eslint-config-prettier": "^8.3.0",
-    "lint-staged": "^11.2.6",
-    "lint-staged": "^11.2.6",
-    "husky": "^7.0.4"
+    "husky": "^7.0.4",
+    "lint-staged": "^11.2.6"
   }
 }
