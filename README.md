@@ -1,13 +1,13 @@
-# npo-backend-template
-This template will be used to create all NPO backend repos
+# Get Inspired
+
+This is the backend for the Get Inspired project!
 
 ## Setting up development environment
 
 To start working on with this project, follow these steps:
 1. Install the [EditorConfig plugin](https://editorconfig.org/#download) for your IDE.
 1. Add the `.env` file stored in your projects Google Drive folder to the root of the project.
-1. Install NodeJS and yarn following the [instructions here](https://classic.yarnpkg.com/lang/en/docs/install).
-1. Navigate to the project folder in your terminal and run `yarn` to install required packages.
+1. Navigate to the project folder in your terminal and run `npm install` to install required packages.
 
 ## Project branching structure
 
@@ -20,13 +20,13 @@ Due to complications with some of the GitHub Actions this project uses, the git 
 
 In the project directory, you can run:
 
-### `yarn start`
+### `npm start`
 
 Runs the app in the development mode, with hot-reload support from [nodemon](https://github.com/remy/nodemon).\
 The server will be accessible from http://localhost:3001, and will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `yarn format`
+### `npm run format`
 
 Formats `.js` files with Prettier.\
 See the [Prettier docs](https://prettier.io/docs/en/index.html) for more information.
