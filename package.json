@@ -1,9 +1,9 @@
 {
-  "name": "npo-backend-template",
+  "name": "get-inspired-backend",
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
-  "repository": "git@github.com:ctc-uci/npo-backend-template.git",
+  "repository": "git@github.com:ctc-uci/get-inspired-backend.git",
   "author": "CTC <ctc@uci.edu>",
   "license": "MIT",
   "scripts": {
