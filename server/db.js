@@ -2,9 +2,9 @@ const mysql = require('mysql');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
-  host: process.env.REACT_APP_DATABASE_HOST,
-  user: process.env.REACT_APP_DATABASE_USER,
-  password: process.env.REACT_APP_DATABASE_PASSWORD,
+  host: process.env.AWS_HOST,
+  user: process.env.AWS_USER,
+  password: process.env.AWS_PASSWORD,
 });
 
 connection.connect((e) => {
