@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-
+const { authRouter } = require('./routes/auth');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -12,6 +13,10 @@ app.use(
     origin: `${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}`,
   }),
 );
+app.use(cookieParser());
+
+// Routes
+app.use('/auth', authRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
