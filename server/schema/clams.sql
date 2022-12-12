@@ -1,5 +1,5 @@
 CREATE TABLE clams{
-    FOREIGN KEY(clamId),
+    PRIMARY KEY(clamId),
     rakerId INTEGER,
     lat DECIMAL,
     long DECIMAL,
