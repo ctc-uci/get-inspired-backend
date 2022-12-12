@@ -6,6 +6,6 @@ CREATE TABLE clams{
     length INTEGER,
     width INTEGER,
     weight INTEGER,
-    comments TEXT,
-    image TEXT,
+    comments VARCHAR(100),
+    image VARCHAR(100),
 };
