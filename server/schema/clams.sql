@@ -1,5 +1,5 @@
 CREATE TABLE clams{
-    PRIMARY KEY(clamId),
+    clamId INTEGER,
     rakerId INTEGER,
     lat DECIMAL,
     long DECIMAL,
@@ -8,4 +8,5 @@ CREATE TABLE clams{
     weight INTEGER,
     comments VARCHAR(100),
     image VARCHAR(100),
+    PRIMARY KEY(clamId),
 };
