@@ -6,7 +6,7 @@ CREATE TABLE clams{
     length INTEGER,
     width INTEGER,
     weight INTEGER,
-    comments VARCHAR(100),
-    image VARCHAR(100),
+    comments VARCHAR(1000),
+    image VARCHAR(1000),
     PRIMARY KEY(clamId),
 };
