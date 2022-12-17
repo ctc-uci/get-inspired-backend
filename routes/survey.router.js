@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../server/db');
+const { pool } = require('../server/db');
 const { keysToCamel } = require('../common/utils');
 
 const router = express.Router();
@@ -7,7 +7,7 @@ module.exports = router;
 // get surveys
 router.get('/', async (req, res) => {
   try {
-    const survey = await db.query('SELECT * FROM survey;');
+    const survey = await pool.query('SELECT * FROM survey;');
     res.status(200).json(survey.rows);
   } catch (err) {
     res.status(400).send(err.message);
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 // get survey id based on survey id
 router.get('/:surveyid', async (req, res) => {
   try {
-    const survey = await db.query('SELECT * FROM survey WHERE survey_id = $(surveyid);');
+    const survey = await pool.query('SELECT * FROM survey WHERE survey_id = $(surveyid);');
     res.status(200).json(survey.rows);
   } catch (err) {
     res.status(400).send(err.message);
@@ -27,7 +27,7 @@ router.get('/:surveyid', async (req, res) => {
 // get survey based on beach id
 router.get('/beach/:beachid/survey', async (req, res) => {
   try {
-    const survey = await db.query('SELECT * FROM survey WHERE beachid = $(beachid)');
+    const survey = await pool.query('SELECT * FROM survey WHERE beachid = $(beachid)');
     res.status(200).json(keysToCamel(survey.rows));
   } catch (err) {
     res.status(400).send(err.message);
@@ -38,7 +38,7 @@ router.get('/beach/:beachid/survey', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { surveyId, beachId, lot, surveyDate, surveyLocation, method, tide } = req.body;
-    const survey = await db.query(
+    const survey = await pool.query(
       `INSERT INTO survey (
       ${surveyId ? 'survey_id, ' : ''}
       ${beachId ? 'beach_id, ' : ''}
@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 router.delete('/surveys/:surveyid', async (req, res) => {
   try {
     const { surveyid } = req.params;
-    const deletedSurvey = await db.query(
+    const deletedSurvey = await pool.query(
       `DELETE from survey WHERE survey_id = $(surveyid) RETURNING *;`,
       { surveyid },
     );
@@ -94,7 +94,7 @@ router.delete('/surveys/:surveyid', async (req, res) => {
 router.put('/surveys/:surveyid', async (req, res) => {
   try {
     const { surveyId, beachId, lot, surveyDate, surveyLocation, method, tide } = req.body;
-    const updatedSurveyTable = await db.query(
+    const updatedSurveyTable = await pool.query(
       `UPDATE survey
          SET
          ${surveyId ? 'survey_id, ' : ''}
