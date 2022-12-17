@@ -1,20 +1,21 @@
 const express = require('express');
 const { db } = require('../server/db');
+const { keysToCamel } = require('../common/utils');
 
 const router = express.Router();
 module.exports = router;
 // get surveys
-router.get('/surveys', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const raker = await db.query('SELECT * FROM survey;');
-    res.status(200).json(raker.rows);
+    const survey = await db.query('SELECT * FROM survey;');
+    res.status(200).json(survey.rows);
   } catch (err) {
     res.status(400).send(err.message);
   }
 });
 
-// get survey id
-router.get('/surveys/:surveyid', async (req, res) => {
+// get survey id based on survey id
+router.get('/:surveyid', async (req, res) => {
   try {
     const survey = await db.query('SELECT * FROM survey WHERE survey_id = $(surveyid);');
     res.status(200).json(survey.rows);
@@ -23,8 +24,18 @@ router.get('/surveys/:surveyid', async (req, res) => {
   }
 });
 
+// get survey based on beach id
+router.get('/beach/:beachid/survey', async (req, res) => {
+  try {
+    const survey = await db.query('SELECT * FROM survey WHERE beachid = $(beachid)');
+    res.status(200).json(keysToCamel(survey.rows));
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
 // create survey
-router.post('/surveys', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { surveyId, beachId, lot, surveyDate, surveyLocation, method, tide } = req.body;
     const survey = await db.query(
@@ -110,3 +121,5 @@ router.put('/surveys/:surveyid', async (req, res) => {
     res.status(400).send(err.message);
   }
 });
+
+module.exports = router;
