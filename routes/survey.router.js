@@ -2,7 +2,7 @@ const express = require('express');
 const { db } = require('../server/db');
 
 const router = express.Router();
-
+module.exports = router;
 // get surveys
 router.get('/surveys', async (req, res) => {
   try {
