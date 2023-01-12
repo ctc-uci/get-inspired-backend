@@ -13,7 +13,7 @@
     "format": "prettier --write \"**/*.js\""
   },
   "lint-staged": {
-    "*.js": "npm run format"
+    "*.js": "yarn run eslint"
   },
   "dependencies": {
     "cors": "^2.8.5",
