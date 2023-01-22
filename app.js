@@ -13,6 +13,7 @@ app.use(
     origin: `${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}`,
   }),
 );
+app.use(express.json());
 
 app.use('/surveys', surveyRouter);
 

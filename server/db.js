@@ -6,6 +6,7 @@ const pool = mysql.createPool({
   host: process.env.AWS_HOST,
   user: process.env.AWS_USER,
   password: process.env.AWS_PASSWORD,
+  multipleStatements: true,
 });
 
 pool.getConnection((e, connection) => {
@@ -26,5 +27,15 @@ pool.getConnection((e, connection) => {
 });
 
 pool.query = util.promisify(pool.query);
+
+// pool.config.queryFormat = (query, values) => {
+//   if (!values) return query;
+//   return query.replace(/\:(\w+)/g, function (txt, key) {
+//     if (values.hasOwnProperty(key)) {
+//       return this.escape(values[key]);
+//     }
+//     return txt;
+//   }.bind(this));
+// };
 
 module.exports = { pool };

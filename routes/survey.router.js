@@ -1,124 +1,140 @@
 const express = require('express');
+const toUnnamed = require('named-placeholders')();
 const { pool } = require('../server/db');
-const { keysToCamel } = require('../common/utils');
+const { isNumeric, keysToCamel } = require('../common/utils');
 
 const router = express.Router();
-module.exports = router;
+
 // get surveys
 router.get('/', async (req, res) => {
   try {
     const survey = await pool.query('SELECT * FROM survey;');
-    res.status(200).json(survey.rows);
+    res.status(200).json(keysToCamel(survey));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
-// get survey id based on survey id
-router.get('/:surveyid', async (req, res) => {
+// get survey based on survey id
+router.get('/:surveyId', async (req, res) => {
   try {
-    const survey = await pool.query('SELECT * FROM survey WHERE survey_id = $(surveyid);');
-    res.status(200).json(survey.rows);
+    const { surveyId } = req.params;
+    isNumeric(surveyId);
+    const [query, params] = toUnnamed('SELECT * FROM survey WHERE survey_id = :surveyId', {
+      surveyId,
+    });
+    const survey = await pool.query(query, params);
+    res.status(200).json(keysToCamel(survey));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
-// get survey based on beach id
-router.get('/beach/:beachid/survey', async (req, res) => {
+// get surveys based on beach id
+router.get('/beach/:beachId', async (req, res) => {
   try {
-    const survey = await pool.query('SELECT * FROM survey WHERE beachid = $(beachid)');
-    res.status(200).json(keysToCamel(survey.rows));
+    const { beachId } = req.params;
+    isNumeric(beachId);
+    const [query, params] = toUnnamed('SELECT * FROM survey WHERE beach_id = :beachId', {
+      beachId,
+    });
+    const surveys = await pool.query(query, params);
+    res.status(200).json(keysToCamel(surveys));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
 // create survey
 router.post('/', async (req, res) => {
   try {
-    const { surveyId, beachId, lot, surveyDate, surveyLocation, method, tide } = req.body;
-    const survey = await pool.query(
-      `INSERT INTO survey (
-      ${surveyId ? 'survey_id, ' : ''}
-      ${beachId ? 'beach_id, ' : ''}
-      ${lot ? 'lot, ' : ''}
-      ${surveyDate ? 'survey_date, ' : ''}
-      ${surveyLocation ? 'survey_location, ' : ''}
-      ${method ? 'method, ' : ''}
-      ${tide ? 'tide, ' : ''}
-      status
-      )
-    VALUES (
-      ${surveyId ? 'survey_id, ' : ''}
-      ${beachId ? 'beach_id, ' : ''}
-      ${lot ? 'lot, ' : ''}
-      ${surveyDate ? 'survey_date, ' : ''}
-      ${surveyLocation ? 'survey_location, ' : ''}
-      ${method ? 'method, ' : ''}
-      ${tide ? 'tide, ' : ''}
-      $(status)
-    )
-    RETURNING *;`,
+    const { surveyId, beachId, lot, date, location, method, tide } = req.body;
+    isNumeric(surveyId);
+    isNumeric(beachId);
+    isNumeric(lot);
+    isNumeric(tide);
+    const [query, params] = toUnnamed(
+      `
+      INSERT INTO survey (
+        survey_id,
+        beach_id,
+        lot,
+        date,
+        location,
+        method,
+        tide
+        )
+      VALUES (
+        :surveyId,
+        :beachId,
+        :lot,
+        :date,
+        :location,
+        :method,
+        :tide
+      );
+      SELECT * FROM survey WHERE survey_id = :surveyId`,
       {
         surveyId,
         beachId,
         lot,
-        surveyDate,
-        surveyLocation,
+        date,
+        location,
         method,
         tide,
       },
     );
-    res.status(200).json(survey.rows);
+    const survey = await pool.query(query, params);
+    res.status(200).json(keysToCamel(survey));
   } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-// delete survey
-router.delete('/surveys/:surveyid', async (req, res) => {
-  try {
-    const { surveyid } = req.params;
-    const deletedSurvey = await pool.query(
-      `DELETE from survey WHERE survey_id = $(surveyid) RETURNING *;`,
-      { surveyid },
-    );
-    res.status(200).json(deletedSurvey.rows);
-  } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
 // update survey
-router.put('/surveys/:surveyid', async (req, res) => {
+router.put('/:surveyId', async (req, res) => {
   try {
-    const { surveyId, beachId, lot, surveyDate, surveyLocation, method, tide } = req.body;
-    const updatedSurveyTable = await pool.query(
+    const { surveyId, beachId, lot, date, location, method, tide } = req.body;
+    const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-         ${surveyId ? 'survey_id, ' : ''}
-         ${beachId ? 'beach_id, ' : ''}
-         ${lot ? 'lot, ' : ''}
-         ${surveyDate ? 'survey_date, ' : ''}
-         ${surveyLocation ? 'survey_location, ' : ''}
-         ${method ? 'method, ' : ''}
-         ${tide ? 'tide, ' : ''}
-        WHERE survey_id = $(surveyid)
-        RETURNING *`,
+         ${beachId ? 'beach_id = :beachId, ' : ''}
+         ${lot ? 'lot = :lot, ' : ''}
+         ${date ? 'date = :date, ' : ''}
+         ${location ? 'location = :location, ' : ''}
+         ${method ? 'method = :method, ' : ''}
+         ${tide ? 'tide = :tide, ' : ''}
+         survey_id = :surveyId
+        WHERE survey_id = :surveyId;
+      SELECT * FROM survey WHERE survey_id = :surveyId`,
       {
         surveyId,
         beachId,
         lot,
-        surveyDate,
-        surveyLocation,
+        date,
+        location,
         method,
         tide,
       },
     );
-    res.status(200).json(updatedSurveyTable.rows);
+    const updatedSurvey = await pool.query(query, params);
+    res.status(200).json(keysToCamel(updatedSurvey));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
+  }
+});
+
+// delete survey
+router.delete('/:surveyId', async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+    const [query, params] = toUnnamed(`DELETE from survey WHERE survey_id = :surveyId;`, {
+      surveyId,
+    });
+    await pool.query(query, params);
+    res.status(200).send(`Deleted survey with id ${surveyId}`);
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 
