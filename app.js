@@ -15,6 +15,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
+app.use(express.json());
 
 // Routes
 app.use('/user', userRouter);
