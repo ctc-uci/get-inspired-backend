@@ -41,6 +41,7 @@ userRouter.post('/', async (req, res) => {
     const user = await pool.query(query, params);
     res.status(200).json(keysToCamel(user));
   } catch (err) {
+    console.log(err.message);
     res.status(400).send(err.mesage);
   }
 });
