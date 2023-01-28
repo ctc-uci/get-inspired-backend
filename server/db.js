@@ -6,6 +6,7 @@ const pool = mysql.createPool({
   host: process.env.AWS_HOST,
   user: process.env.AWS_USER,
   password: process.env.AWS_PASSWORD,
+  multipleStatements: true,
 });
 
 pool.getConnection((e, connection) => {

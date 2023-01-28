@@ -13,6 +13,7 @@ app.use(
   }),
 );
 
+app.use(express.json());
 app.use('/rakers', rakersRouter);
 
 app.listen(PORT, () => {
