@@ -3,7 +3,7 @@ const cors = require('cors');
 
 require('dotenv').config();
 
-const clams = require('./routes/clams');
+const clamsRouter = require('./routes/clams.router');
 
 const app = express();
 
@@ -14,9 +14,11 @@ app.use(
     origin: `${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}`,
   }),
 );
+app.use(express.json());
 
-app.use('/clams', clams);
+app.use('/clams', clamsRouter);
 
+// eslint-disable-line
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
