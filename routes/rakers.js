@@ -72,41 +72,40 @@ router.post('/', async (req, res) => {
     isNumeric(endSlope);
     isNumeric(rakeArea);
     const [query, params] = toUnnamed(
-      `INSERT INTO survey (
-      ${rakerId ? 'rakerId, ' : ''}
-      ${surveyId ? 'surveyId, ' : ''}
-      ${rakerName ? 'rakerName, ' : ''}
-      ${startLat ? 'startLat, ' : ''}
-      ${startLong ? 'startLong, ' : ''}
-      ${startTime ? 'startTime, ' : ''}
-      ${endTime ? 'endTime, ' : ''}
-      ${endLat ? 'endLat, ' : ''}
-      ${endLong ? 'endLong, ' : ''}
-      ${startDepth ? 'startDepth, ' : ''}
-      ${endDepth ? 'endDepth, ' : ''}
-      ${startSlope ? 'start_slop, ' : ''}
-      ${endSlope ? 'endSlope, ' : ''}
-      ${rakeArea ? 'rakeArea, ' : ''}
-      status
-      )
-    VALUES (
-      ${rakerId ? '$(rakerId), ' : ''}
-      ${surveyId ? '$(surveyId), ' : ''}
-      ${rakerName ? '$(rakerName), ' : ''}
-      ${startLat ? '$(startLat), ' : ''}
-      ${startLong ? '$(startLong), ' : ''}
-      ${startTime ? '$(startTime), ' : ''}
-      ${endTime ? '$(endTime), ' : ''}
-      ${endLat ? '$(endLat), ' : ''}
-      ${endDepth ? '$(endDepth), ' : ''}
-      ${startSlope ? '$(startSlope), ' : ''}
-      ${endSlope ? '$(endSlope), ' : ''}
-      ${startSlope ? '$(startSlope), ' : ''}
-      ${endSlope ? '$(endSlope), ' : ''}
-      ${rakeArea ? '$(rake_are), ' : ''}
-      $(status)
+      `
+    INSERT INTO survey (
+      raker_id,
+      surveyId,
+      rakerName,
+      startLat,
+      startLong,
+      startTime,
+      endTime,
+      endLat,
+      endLong,
+      startDepth,
+      endDepth,
+      startSlope,
+      endSlope,
+      rakeArea,
     )
-    RETURNING *;`,
+    VALUES (
+      :rakerId,
+      :surveyId,
+      :rakerName,
+      :startLat,
+      :startLong,
+      :startTime,
+      :endTime,
+      :endLat,
+      :endDepth,
+      :startSlope,
+      :endSlope,
+      :startSlope,
+      :endSlope,
+      :rakeArea,
+    );
+    SELECT * FROM rakers WHERE raker_id:rakerId`,
       {
         rakerId,
         surveyId,
@@ -116,8 +115,6 @@ router.post('/', async (req, res) => {
         startTime,
         endTime,
         endLat,
-        endLong,
-        startDepth,
         endDepth,
         startSlope,
         endSlope,
@@ -125,8 +122,9 @@ router.post('/', async (req, res) => {
       },
     );
     const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker.rows));
+    res.status(200).json(keysToCamel(raker));
   } catch (err) {
+    console.log(err);
     res.status(500).send(err.message);
   }
 });

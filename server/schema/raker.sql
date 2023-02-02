@@ -1,5 +1,5 @@
 CREATE TABLE raker{
-    FOREIGN KEY(rakerId) references Clams(raker_id) on DELETE CASCADE,
+    FOREIGN KEY(raker_id) references Clams(raker_id) on DELETE CASCADE,
     surveyId INTEGER,
     rakerName VARCHAR,
     startLat DECIMAL,
