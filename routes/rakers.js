@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
       endDepth,
       startSlope,
       endSlope,
-      rakeArea,
+      rakeArea
     )
     VALUES (
       :rakerId,
@@ -103,7 +103,7 @@ router.post('/', async (req, res) => {
       :endSlope,
       :startSlope,
       :endSlope,
-      :rakeArea,
+      :rakeArea
     );
     SELECT * FROM rakers WHERE raker_id:rakerId`,
       {
