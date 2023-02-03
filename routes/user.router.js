@@ -41,7 +41,6 @@ userRouter.post('/', async (req, res) => {
     const user = await pool.query(query, params);
     res.status(200).json(keysToCamel(user));
   } catch (err) {
-    console.log(err.message);
     res.status(400).send(err.mesage);
   }
 });
@@ -49,7 +48,6 @@ userRouter.post('/', async (req, res) => {
 // userRouter: read DB for all users
 userRouter.get('/', async (req, res) => {
   try {
-    console.log('GET');
     const users = await pool.query('SELECT * FROM user;');
     res.status(200).json(keysToCamel(users));
   } catch (err) {
@@ -70,7 +68,6 @@ userRouter.get('/:id', async (req, res) => {
     const user = await pool.query(query, params);
     res.status(200).json(keysToCamel(user));
   } catch (err) {
-    console.log(err.message);
     res.status(400).send(err.message);
   }
 });
