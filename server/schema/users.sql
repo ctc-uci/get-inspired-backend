@@ -3,10 +3,10 @@
  -- (NOTE andrew): also double check if enum works & if roles are appropriate
 
 CREATE TABLE users(
-  user_id     INTEGER PRIMARY KEY,
+  id     INTEGER PRIMARY KEY,
   email       VARCHAR(255),
-  user_role   VARCHAR(50) NOT NULL,
+  role   ENUM('admin', 'editor', 'viewer'),
   first_name  VARCHAR(50),
   last_name   VARCHAR(50),
-  PRIMARY KEY(user_id)
+  PRIMARY KEY(id)
 );

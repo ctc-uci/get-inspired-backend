@@ -70,6 +70,7 @@ userRouter.get('/:id', async (req, res) => {
     const user = await pool.query(query, params);
     res.status(200).json(keysToCamel(user));
   } catch (err) {
+    console.log(err.message);
     res.status(400).send(err.message);
   }
 });
@@ -77,7 +78,8 @@ userRouter.get('/:id', async (req, res) => {
 // userRouter: update a user
 userRouter.put('/:id', async (req, res) => {
   try {
-    const { email, firstName, lastName, role, id } = req.body;
+    const { id } = req.params;
+    const { email, firstName, lastName, role } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE user
          SET
