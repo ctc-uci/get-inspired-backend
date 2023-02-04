@@ -16,26 +16,30 @@ router.get('/', async (req, res) => {
 });
 
 // get rakerId
-router.get('/:rakerId', async (req, res) => {
+router.get('/raker/:rakerId', async (req, res) => {
   try {
     const { rakerId } = req.params;
     isNumeric(rakerId);
-    const [query, params] = toUnnamed('SELECT * FROM raker WHERE rakerId = $(rakerId);');
+    const [query, params] = toUnnamed('SELECT * FROM raker WHERE id = :rakerId;', {
+      rakerId,
+    });
     const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker.rows));
+    res.status(200).json(keysToCamel(raker[0]));
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
 // get rakers from surveyid
-router.get('/survey/:surveyid/rakers', async (req, res) => {
+router.get('/survey/:surveyId', async (req, res) => {
   try {
-    const { raker } = req.params;
-    isNumeric(raker);
-    const [query, params] = toUnnamed('SELECT * FROM raker WHERE surveyId = $(surveyid)');
-    await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker.rows));
+    const { surveyId } = req.params;
+    isNumeric(surveyId);
+    const [query, params] = toUnnamed('SELECT * FROM raker WHERE survey_id = :surveyId', {
+      surveyId,
+    });
+    const raker = await pool.query(query, params);
+    res.status(200).json(keysToCamel(raker[0]));
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -45,7 +49,6 @@ router.get('/survey/:surveyid/rakers', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const {
-      rakerId,
       surveyId,
       rakerName,
       startLat,
@@ -60,7 +63,6 @@ router.post('/', async (req, res) => {
       endSlope,
       rakeArea,
     } = req.body;
-    isNumeric(rakerId);
     isNumeric(surveyId);
     isNumeric(startLat);
     isNumeric(startLong);
@@ -73,24 +75,22 @@ router.post('/', async (req, res) => {
     isNumeric(rakeArea);
     const [query, params] = toUnnamed(
       `
-    INSERT INTO survey (
-      raker_id,
-      surveyId,
-      rakerName,
-      startLat,
-      startLong,
-      startTime,
-      endTime,
-      endLat,
-      endLong,
-      startDepth,
-      endDepth,
-      startSlope,
-      endSlope,
-      rakeArea
+    INSERT INTO raker (
+      survey_id,
+      raker_name,
+      start_lat,
+      start_long,
+      start_time,
+      end_time,
+      end_lat,
+      end_long,
+      start_depth,
+      end_depth,
+      start_slope,
+      end_slope,
+      rake_area
     )
     VALUES (
-      :rakerId,
       :surveyId,
       :rakerName,
       :startLat,
@@ -105,9 +105,8 @@ router.post('/', async (req, res) => {
       :endSlope,
       :rakeArea
     );
-    SELECT * FROM rakers WHERE raker_id:rakerId`,
+    SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
       {
-        rakerId,
         surveyId,
         rakerName,
         startLat,
@@ -124,28 +123,27 @@ router.post('/', async (req, res) => {
     const raker = await pool.query(query, params);
     res.status(200).json(keysToCamel(raker));
   } catch (err) {
-    console.log(err);
     res.status(500).send(err.message);
   }
 });
 
 // delete raker
-router.delete('/rakers/:rakerId', async (req, res) => {
+router.delete('/:rakerId', async (req, res) => {
   try {
     const { rakerId } = req.params;
     isNumeric(rakerId);
-    const [query, params] = toUnnamed(`DELETE from raker WHERE rakerId = $(rakerId) RETURNING *;`, {
+    const [query, params] = toUnnamed(`DELETE from raker WHERE id = :rakerId;`, {
       rakerId,
     });
     const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker.rows));
+    res.status(200).json(keysToCamel(raker[0]));
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
 // update raker
-router.put('/rakers/:rakerId', async (req, res) => {
+router.put('/:rakerId', async (req, res) => {
   try {
     const { rakerId } = req.params;
     const {
@@ -166,22 +164,22 @@ router.put('/rakers/:rakerId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE raker 
       SET
-      ${rakerId ? 'rakerId, ' : ''}
-      ${surveyId ? 'surveyId, ' : ''}
-      ${rakerName ? 'rakerName, ' : ''}
-      ${startLat ? 'startLat, ' : ''}
-      ${startLong ? 'startLong, ' : ''}
-      ${startTime ? 'startTime, ' : ''}
-      ${endTime ? 'endTime, ' : ''}
-      ${endLat ? 'endLat, ' : ''}
-      ${endLong ? 'endLong, ' : ''}
-      ${startDepth ? 'startDepth, ' : ''}
-      ${endDepth ? 'endDepth, ' : ''}
-      ${startSlope ? 'start_slop, ' : ''}
-      ${endSlope ? 'endSlope, ' : ''}
-      ${rakeArea ? 'rakeArea, ' : ''}
-    WHERE rakerId = $(rakerId)
-    RETURNING *`,
+      ${surveyId ? 'survey_id = :surveyId, ' : ''}
+      ${rakerName ? 'raker_name = :rakerName, ' : ''}
+      ${startLat ? 'start_lat = :startLat, ' : ''}
+      ${startLong ? 'start_long =:startLong , ' : ''}
+      ${startTime ? 'start_time = :startTime, ' : ''}
+      ${endTime ? 'end_time = :endTime, ' : ''}
+      ${endLat ? 'end_lat = :endLat, ' : ''}
+      ${endLong ? 'end_long = :endLong, ' : ''}
+      ${startDepth ? 'start_depth = :startDepth, ' : ''}
+      ${endDepth ? 'end_depth = :endDepth, ' : ''}
+      ${startSlope ? 'start_slope = :startSlope, ' : ''}
+      ${endSlope ? 'end_slope = :endSlope, ' : ''}
+      ${rakeArea ? 'rake_area = :rakeArea, ' : ''}
+      id = :rakerId
+    WHERE id = :rakerId;
+    SELECT * FROM raker WHERE id = :rakerId;`,
       {
         rakerId,
         surveyId,
@@ -200,7 +198,7 @@ router.put('/rakers/:rakerId', async (req, res) => {
       },
     );
     const updatedRaker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(updatedRaker.rows));
+    res.status(200).json(keysToCamel(updatedRaker[0]));
   } catch (err) {
     res.status(500).send(err.message);
   }
