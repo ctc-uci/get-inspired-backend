@@ -1,6 +1,6 @@
 CREATE TABLE clam IF NOT EXISTS{
-    clamId INTEGER PRIMARY KEY,
-    rakerId INTEGER NOT NULL,
+    clam_id INTEGER PRIMARY KEY,
+    raker_id INTEGER NOT NULL,
     lat DOUBLE NOT NULL,
     lon DOUBLE NOT NULL,
     length DOUBLE NOT NULL,

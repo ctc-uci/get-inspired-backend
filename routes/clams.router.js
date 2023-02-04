@@ -21,7 +21,7 @@ router.get('/:clamId', async (req, res) => {
     const { clamId } = req.params;
     isNumeric(clamId);
 
-    const [query, params] = toUnnamed('SELECT * FROM clam WHERE clamId = :clamId', { clamId });
+    const [query, params] = toUnnamed('SELECT * FROM clam WHERE clam_id = :clamId', { clamId });
     const clam = await pool.query(query, params);
 
     res.status(200).json(keysToCamel(clam));
@@ -31,12 +31,12 @@ router.get('/:clamId', async (req, res) => {
 });
 
 // Get data for clams based on rakerId
-router.get('/rakers/:rakerId', async (req, res) => {
+router.get('/raker/:rakerId', async (req, res) => {
   try {
     const { rakerId } = req.params;
     isNumeric(rakerId);
 
-    const [query, params] = toUnnamed('SELECT * FROM clam WHERE rakerId = :rakerId', { rakerId });
+    const [query, params] = toUnnamed('SELECT * FROM clam WHERE raker_id = :rakerId', { rakerId });
     const clams = await pool.query(query, params);
 
     res.status(200).json(keysToCamel(clams));
@@ -52,12 +52,17 @@ router.post('/', async (req, res) => {
 
     isNumeric(clamId);
     isNumeric(rakerId);
+    isNumeric(lat);
+    isNumeric(lon);
+    isNumeric(length);
+    isNumeric(width);
+    isNumeric(weight);
 
     const [query, params] = toUnnamed(
       `
-      INSERT INTO \`clam\` (
-        clamId,
-        rakerId,
+      INSERT INTO clam (
+        clam_id,
+        raker_id,
         lat,
         lon,
         length,
@@ -77,7 +82,7 @@ router.post('/', async (req, res) => {
         :comments,
         :image
       );
-      SELECT * FROM clam WHERE clamId = :clamId`,
+      SELECT * FROM clam WHERE clam_id = :clamId;`,
       {
         clamId,
         rakerId,
@@ -93,22 +98,7 @@ router.post('/', async (req, res) => {
 
     const clam = await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(clam));
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-});
-
-// Delete clam
-router.delete('/:clamId', async (req, res) => {
-  try {
-    const { clamId } = req.params;
-    isNumeric(clamId);
-
-    const [query, params] = toUnnamed('DELETE FROM clam WHERE clamId = :clamId', { clamId });
-    await pool.query(query, params);
-
-    res.status(200).json(keysToCamel(`Deleted clam #${clamId}`));
+    res.status(200).json(keysToCamel(clam[1]));
   } catch (err) {
     res.status(400).send(err.message);
   }
@@ -122,11 +112,16 @@ router.put('/:clamId', async (req, res) => {
 
     const { rakerId, lat, lon, length, width, weight, comments, image } = req.body;
     isNumeric(rakerId);
+    isNumeric(lat);
+    isNumeric(lon);
+    isNumeric(length);
+    isNumeric(width);
+    isNumeric(weight);
 
     const [query, params] = toUnnamed(
       `UPDATE clam
          SET
-         ${rakerId ? 'rakerId = :rakerId, ' : ''}
+         ${rakerId ? 'raker_id = :rakerId, ' : ''}
          ${lat ? 'lat = :lat, ' : ''}
          ${lon ? 'lon = :lon, ' : ''}
          ${length ? 'length = :length, ' : ''}
@@ -134,8 +129,9 @@ router.put('/:clamId', async (req, res) => {
          ${weight ? 'weight = :weight, ' : ''}
          ${comments ? 'comments = :comments, ' : ''}
          ${image ? 'image = :image, ' : ''}
-        clamId = :clamId
-         WHERE clamId = :clamId;`,
+         clam_id = :clamId
+         WHERE clam_id = :clamId;
+      SELECT * FROM clam WHERE clam_id = :clamId;`,
       {
         clamId,
         rakerId,
@@ -151,7 +147,22 @@ router.put('/:clamId', async (req, res) => {
 
     const updatedClam = await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(updatedClam));
+    res.status(200).json(keysToCamel(updatedClam[1]));
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
+// Delete clam
+router.delete('/:clamId', async (req, res) => {
+  try {
+    const { clamId } = req.params;
+    isNumeric(clamId);
+
+    const [query, params] = toUnnamed('DELETE FROM clam WHERE clam_id = :clamId', { clamId });
+    await pool.query(query, params);
+
+    res.status(200).json(keysToCamel(`Deleted clam #${clamId}`));
   } catch (err) {
     res.status(400).send(err.message);
   }

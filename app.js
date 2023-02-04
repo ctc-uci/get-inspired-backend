@@ -18,7 +18,6 @@ app.use(express.json());
 
 app.use('/clams', clamsRouter);
 
-// eslint-disable-line
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
