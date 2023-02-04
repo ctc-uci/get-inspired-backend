@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     const clams = await pool.query('SELECT * FROM clam;');
     res.status(200).json(keysToCamel(clams));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -26,7 +26,7 @@ router.get('/:clamId', async (req, res) => {
 
     res.status(200).json(keysToCamel(clam));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -41,16 +41,15 @@ router.get('/raker/:rakerId', async (req, res) => {
 
     res.status(200).json(keysToCamel(clams));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
 // Create clam
 router.post('/', async (req, res) => {
   try {
-    const { clamId, rakerId, lat, lon, length, width, weight, comments, image } = req.body;
+    const { rakerId, lat, lon, length, width, weight, comments, image } = req.body;
 
-    isNumeric(clamId);
     isNumeric(rakerId);
     isNumeric(lat);
     isNumeric(lon);
@@ -61,7 +60,6 @@ router.post('/', async (req, res) => {
     const [query, params] = toUnnamed(
       `
       INSERT INTO clam (
-        clam_id,
         raker_id,
         lat,
         lon,
@@ -72,7 +70,6 @@ router.post('/', async (req, res) => {
         image
         )
       VALUES (
-        :clamId,
         :rakerId,
         :lat,
         :lon,
@@ -82,9 +79,8 @@ router.post('/', async (req, res) => {
         :comments,
         :image
       );
-      SELECT * FROM clam WHERE clam_id = :clamId;`,
+      SELECT * FROM clam WHERE clam_id = LAST_INSERT_ID();`,
       {
-        clamId,
         rakerId,
         lat,
         lon,
@@ -100,7 +96,7 @@ router.post('/', async (req, res) => {
 
     res.status(200).json(keysToCamel(clam[1]));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -149,7 +145,7 @@ router.put('/:clamId', async (req, res) => {
 
     res.status(200).json(keysToCamel(updatedClam[1]));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -164,7 +160,7 @@ router.delete('/:clamId', async (req, res) => {
 
     res.status(200).json(keysToCamel(`Deleted clam #${clamId}`));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
