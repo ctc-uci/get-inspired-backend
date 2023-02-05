@@ -21,7 +21,7 @@ router.get('/:clamId', async (req, res) => {
     const { clamId } = req.params;
     isNumeric(clamId);
 
-    const [query, params] = toUnnamed('SELECT * FROM clam WHERE clam_id = :clamId', { clamId });
+    const [query, params] = toUnnamed('SELECT * FROM clam WHERE id = :clamId', { clamId });
     const clam = await pool.query(query, params);
 
     res.status(200).json(keysToCamel(clam));
@@ -79,7 +79,7 @@ router.post('/', async (req, res) => {
         :comments,
         :image
       );
-      SELECT * FROM clam WHERE clam_id = LAST_INSERT_ID();`,
+      SELECT * FROM clam WHERE id = LAST_INSERT_ID();`,
       {
         rakerId,
         lat,
@@ -125,9 +125,9 @@ router.put('/:clamId', async (req, res) => {
          ${weight ? 'weight = :weight, ' : ''}
          ${comments ? 'comments = :comments, ' : ''}
          ${image ? 'image = :image, ' : ''}
-         clam_id = :clamId
-         WHERE clam_id = :clamId;
-      SELECT * FROM clam WHERE clam_id = :clamId;`,
+         id = :clamId
+         WHERE id = :clamId;
+      SELECT * FROM clam WHERE id = :clamId;`,
       {
         clamId,
         rakerId,
@@ -155,7 +155,7 @@ router.delete('/:clamId', async (req, res) => {
     const { clamId } = req.params;
     isNumeric(clamId);
 
-    const [query, params] = toUnnamed('DELETE FROM clam WHERE clam_id = :clamId', { clamId });
+    const [query, params] = toUnnamed('DELETE FROM clam WHERE id = :clamId', { clamId });
     await pool.query(query, params);
 
     res.status(200).json(keysToCamel(`Deleted clam #${clamId}`));
