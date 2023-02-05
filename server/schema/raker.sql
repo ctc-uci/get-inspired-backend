@@ -1,5 +1,5 @@
 CREATE TABLE raker{
-    FOREIGN KEY (survey_id) REFERENCES survey(survey_id) on DELETE CASCADE,
+    FOREIGN KEY (survey_id) REFERENCES survey(survey_id) ON DELETE CASCADE ON UPDATE CASCADE,
     raker_name VARCHAR,
     start_lat DECIMAL,
     start_long DECIMAL,
