@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-
+const rakersRouter = require('./routes/rakers.router');
 require('dotenv').config();
 
 const clamsRouter = require('./routes/clams.router');
@@ -17,6 +17,9 @@ app.use(
 app.use(express.json());
 
 app.use('/clams', clamsRouter);
+
+app.use(express.json());
+app.use('/rakers', rakersRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
