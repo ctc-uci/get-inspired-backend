@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const rakersRouter = require('./routes/rakers');
+const rakersRouter = require('./routes/rakers.router');
 require('dotenv').config();
 
 const app = express();

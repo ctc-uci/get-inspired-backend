@@ -1,6 +1,8 @@
-CREATE TABLE raker{
-    FOREIGN KEY (survey_id) REFERENCES survey(survey_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    raker_name VARCHAR,
+CREATE TABLE raker(
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    survey_id INTEGER NOT NULL,
+    FOREIGN KEY (survey_id) REFERENCES survey(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    name VARCHAR,
     start_lat DECIMAL,
     start_long DECIMAL,
     start_time DATETIME,
@@ -12,6 +14,5 @@ CREATE TABLE raker{
     start_slope DECIMAL,
     end_slope DECIMAL,
     rake_area VARCHAR,
-    id INTEGER PRIMARY KEY AUTO_INCREMENT;
-};
+);
 

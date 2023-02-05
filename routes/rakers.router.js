@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
   try {
     const {
       surveyId,
-      rakerName,
+      name,
       startLat,
       startLong,
       startTime,
@@ -77,7 +77,7 @@ router.post('/', async (req, res) => {
       `
     INSERT INTO raker (
       survey_id,
-      raker_name,
+      name,
       start_lat,
       start_long,
       start_time,
@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
     )
     VALUES (
       :surveyId,
-      :rakerName,
+      :name,
       :startLat,
       :startLong,
       :startTime,
@@ -108,7 +108,7 @@ router.post('/', async (req, res) => {
     SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
       {
         surveyId,
-        rakerName,
+        name,
         startLat,
         startLong,
         startTime,
@@ -148,7 +148,7 @@ router.put('/:rakerId', async (req, res) => {
     const { rakerId } = req.params;
     const {
       surveyId,
-      rakerName,
+      name,
       startLat,
       startLong,
       startTime,
@@ -162,10 +162,10 @@ router.put('/:rakerId', async (req, res) => {
       rakeArea,
     } = req.body;
     const [query, params] = toUnnamed(
-      `UPDATE raker 
+      `UPDATE raker
       SET
       ${surveyId ? 'survey_id = :surveyId, ' : ''}
-      ${rakerName ? 'raker_name = :rakerName, ' : ''}
+      ${name ? 'name = :name, ' : ''}
       ${startLat ? 'start_lat = :startLat, ' : ''}
       ${startLong ? 'start_long =:startLong , ' : ''}
       ${startTime ? 'start_time = :startTime, ' : ''}
@@ -183,7 +183,7 @@ router.put('/:rakerId', async (req, res) => {
       {
         rakerId,
         surveyId,
-        rakerName,
+        name,
         startLat,
         startLong,
         startTime,
