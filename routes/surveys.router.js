@@ -16,11 +16,11 @@ router.get('/', async (req, res) => {
 });
 
 // get survey based on survey id
-router.get('/:surveyId', async (req, res) => {
+router.get('/survey/:surveyId', async (req, res) => {
   try {
     const { surveyId } = req.params;
     isNumeric(surveyId);
-    const [query, params] = toUnnamed('SELECT * FROM survey WHERE survey_id = :surveyId', {
+    const [query, params] = toUnnamed('SELECT * FROM survey WHERE id = :surveyId', {
       surveyId,
     });
     const survey = await pool.query(query, params);
@@ -48,15 +48,13 @@ router.get('/beach/:beachId', async (req, res) => {
 // create survey
 router.post('/', async (req, res) => {
   try {
-    const { surveyId, beachId, lot, date, location, method, tide } = req.body;
-    isNumeric(surveyId);
+    const { beachId, lot, date, location, method, tide } = req.body;
     isNumeric(beachId);
     isNumeric(lot);
     isNumeric(tide);
     const [query, params] = toUnnamed(
       `
       INSERT INTO survey (
-        survey_id,
         beach_id,
         lot,
         date,
@@ -65,7 +63,6 @@ router.post('/', async (req, res) => {
         tide
         )
       VALUES (
-        :surveyId,
         :beachId,
         :lot,
         :date,
@@ -73,9 +70,8 @@ router.post('/', async (req, res) => {
         :method,
         :tide
       );
-      SELECT * FROM survey WHERE survey_id = :surveyId`,
+      SELECT * FROM survey WHERE id = LAST_INSERT_ID();`,
       {
-        surveyId,
         beachId,
         lot,
         date,
@@ -94,7 +90,8 @@ router.post('/', async (req, res) => {
 // update survey
 router.put('/:surveyId', async (req, res) => {
   try {
-    const { surveyId, beachId, lot, date, location, method, tide } = req.body;
+    const { surveyId } = req.params;
+    const { beachId, lot, date, location, method, tide } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
@@ -104,9 +101,9 @@ router.put('/:surveyId', async (req, res) => {
          ${location ? 'location = :location, ' : ''}
          ${method ? 'method = :method, ' : ''}
          ${tide ? 'tide = :tide, ' : ''}
-         survey_id = :surveyId
-        WHERE survey_id = :surveyId;
-      SELECT * FROM survey WHERE survey_id = :surveyId`,
+         id = :surveyId
+        WHERE id = :surveyId;
+      SELECT * FROM survey WHERE id = :surveyId`,
       {
         surveyId,
         beachId,
@@ -128,7 +125,7 @@ router.put('/:surveyId', async (req, res) => {
 router.delete('/:surveyId', async (req, res) => {
   try {
     const { surveyId } = req.params;
-    const [query, params] = toUnnamed(`DELETE from survey WHERE survey_id = :surveyId;`, {
+    const [query, params] = toUnnamed(`DELETE from survey WHERE id = :surveyId;`, {
       surveyId,
     });
     await pool.query(query, params);

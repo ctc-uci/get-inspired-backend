@@ -1,9 +1,9 @@
-CREATE TABLE survey{
-  FOREIGN KEY (survey_id) references Raker(survey_id) on DELETE CASCADE,
+CREATE TABLE survey(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   beach_id INTEGER,
   lot INTEGER,
   date DATETIME,
   location VARCHAR,
   method VARCHAR,
-  tide DOUBLE,
-};
+  tide DOUBLE
+);
