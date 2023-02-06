@@ -41,7 +41,7 @@ userRouter.post('/', async (req, res) => {
     const user = await pool.query(query, params);
     res.status(200).json(keysToCamel(user));
   } catch (err) {
-    res.status(400).send(err.mesage);
+    res.status(500).send(err.mesage);
   }
 });
 
@@ -51,7 +51,7 @@ userRouter.get('/', async (req, res) => {
     const users = await pool.query('SELECT * FROM user;');
     res.status(200).json(keysToCamel(users));
   } catch (err) {
-    res.status(400).send(err.mesage);
+    res.status(500).send(err.mesage);
   }
 });
 
@@ -68,7 +68,7 @@ userRouter.get('/:id', async (req, res) => {
     const user = await pool.query(query, params);
     res.status(200).json(keysToCamel(user));
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -119,7 +119,7 @@ userRouter.delete('/:id', async (req, res) => {
     // send response
     res.status(200).send(`Deleted user with ID: ${id}`);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
