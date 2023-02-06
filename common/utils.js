@@ -1,5 +1,5 @@
 const isNumeric = (value, errorMessage) => {
-  if (!/^\d+$/.test(value)) {
+  if (value && !/^[+-]?((\d+(\.\d*)?)|(\.\d+))$/.test(value)) {
     throw new Error(errorMessage);
   }
 };
