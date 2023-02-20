@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: `${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}`,
+    origin: `${process.env.REACT_APP_HOST}`,
     credentials: true,
   }),
 );
