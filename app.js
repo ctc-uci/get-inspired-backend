@@ -13,14 +13,21 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: `${process.env.REACT_APP_HOST}`,
+    origin: `${
+      !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+        ? process.env.REACT_APP_HOST
+        : process.env.REACT_APP_PROD_HOST
+    }`,
     credentials: true,
   }),
 );
 app.use(cookieParser());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3001;
+const PORT =
+  !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+    ? 3001
+    : process.env.REACT_APP_PROD_PORT;
 
 // Routes
 app.use('/users', usersRouter);
