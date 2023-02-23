@@ -37,7 +37,7 @@ app.use('/surveys', surveysRouter);
 app.use('/clams', clamsRouter);
 app.use('/rakers', rakersRouter);
 
-app.use('/letroll', (req, res) => {
+app.get('/letroll', (req, res) => {
   return res.status(200).send('letroll');
 });
 
