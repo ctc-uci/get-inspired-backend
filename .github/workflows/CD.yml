@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Deploy in EC2
         env:
             PRIVATE_KEY: ${{ secrets.AWS_EC2_PRIVATE_KEY  }}
