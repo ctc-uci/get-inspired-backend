@@ -37,6 +37,10 @@ app.use('/surveys', surveysRouter);
 app.use('/clams', clamsRouter);
 app.use('/rakers', rakersRouter);
 
+app.use('/letroll', (req, res) => {
+  return res.status(200).send('letroll');
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
