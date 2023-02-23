@@ -2,7 +2,7 @@ name: EC2 Deploy
 
 on:
   push:
-    branches: cy-autodeploy-test
+    branches: dev
 
 jobs:
   Deploy:
