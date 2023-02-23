@@ -18,7 +18,7 @@ jobs:
 
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOSTNAME} '
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOSTNAME}
 
             #Now we have got the access of EC2 and we will start the deploy .
             cd ~/get-inspired-backend &&
