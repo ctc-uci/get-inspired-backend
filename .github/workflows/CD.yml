@@ -24,5 +24,6 @@ jobs:
             cd ~/get-inspired-backend &&
             git checkout dev &&
             git pull origin dev &&
+            yarn &&
             pm2 restart app.js
           '
