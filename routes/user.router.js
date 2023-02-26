@@ -76,11 +76,10 @@ userRouter.get('/:id', async (req, res) => {
 userRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, firstName, lastName, role } = req.body;
+    const { firstName, lastName, role } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE user
          SET
-         ${email ? 'email = :email, ' : ''}
          ${firstName ? 'first_name = :firstName, ' : ''}
          ${lastName ? 'last_name = :lastName, ' : ''}
          ${role ? 'role = :role, ' : ''}
@@ -88,7 +87,6 @@ userRouter.put('/:id', async (req, res) => {
         WHERE id = :id;
       SELECT * FROM user WHERE id = :id`,
       {
-        email,
         firstName,
         lastName,
         role,
