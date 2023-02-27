@@ -1,21 +1,19 @@
 const express = require('express');
-const toUnnamed = require('named-placeholders')();
+// const toUnnamed = require('named-placeholders')();
 
 // eslint-disable-next-line
-const { Utils } = require('@react-awesome-query-builder/antd');
+const { Utils, CoreConfig } = require('@react-awesome-query-builder/core');
 const { pool } = require('../server/db');
 
 const queryRouter = express.Router();
 
 // Generic search - user only passes in 1 string & searches the entire database for matches
 // queryRouter.get('/', async (req, res) => {});
-
-// function that converts each of the
 const checkedFieldsToSQLSelect = (checkedFields) => {
   let out = '';
   Object.keys(checkedFields).forEach((table) => {
     checkedFields[table].forEach((field) => {
-      out += `${table}.${field} AS ${table}_${field}, `;
+      out += `${pool.escapeId(`${table}.${field}`)}, `;
     });
   });
   return out.substring(0, out.length - 2);
@@ -25,34 +23,31 @@ const checkedFieldsToSQLSelect = (checkedFields) => {
 queryRouter.post('/advanced', async (req, res) => {
   try {
     // get tree, config, and checkedFields from post request
-    const { config, tree: jsTree, checkedFields } = req.body;
+    const { config: configIn, tree: jsTree, checkedFields } = req.body;
+
+    const config = { ...configIn, settings: CoreConfig.settings };
 
     // Convert checkedFields to sqlCols
     const querySelect = checkedFieldsToSQLSelect(checkedFields);
 
-    // Convert tree from JSON object back into an immutable value
-    // and then to an SQL where clause
-    const value = Utils.checkTree(Utils.loadTree(jsTree, config), config);
-    // console.log('here!');
+    // Convert tree from JSON object to an SQL where clause
+    // (NOTE andrew): loading from json logic tree currently broken: investigate
+    const value = Utils.checkTree(Utils.loadFromJsonLogic(jsTree, configIn), configIn);
     const queryWhere = Utils.sqlFormat(value, config);
 
     // console.log({ querySelect, queryWhere });
 
-    const [query, params] = toUnnamed(
-      `
-				SELECT survey.id, clam.lat AS clam_lat, clam.lon AS clam_lon
-				FROM survey
-				LEFT JOIN raker ON survey.id = raker.survey_id
-				LEFT JOIN clam ON survey.id = clam.survey_id
-        WHERE :queryWhere
-			`,
-      { querySelect, queryWhere },
+    const results = await pool.query(
+      `SELECT ${querySelect}
+      FROM survey
+      LEFT JOIN raker ON survey.id = raker.survey_id
+      LEFT JOIN clam ON survey.id = clam.survey_id
+      ${queryWhere ? `WHERE ${queryWhere}` : ''};`,
     );
-    const results = await pool.query(query, params);
-    // console.log(results);
     res.status(200).json(results);
   } catch (err) {
     // console.log(err);
+
     // send 500 on any other errors
     res.status(500).send(err.message);
   }

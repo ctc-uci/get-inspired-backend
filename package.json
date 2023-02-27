@@ -16,6 +16,7 @@
     "*.js": "yarn run eslint"
   },
   "dependencies": {
+    "@babel/runtime": "^7.21.0",
     "@react-awesome-query-builder/core": "^6.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
