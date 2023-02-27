@@ -1,5 +1,4 @@
 const express = require('express');
-// const toUnnamed = require('named-placeholders')();
 
 // eslint-disable-next-line
 const { Utils, CoreConfig } = require('@react-awesome-query-builder/core');
@@ -23,19 +22,20 @@ const checkedFieldsToSQLSelect = (checkedFields) => {
 queryRouter.post('/advanced', async (req, res) => {
   try {
     // get tree, config, and checkedFields from post request
-    const { config: configIn, tree: jsTree, checkedFields } = req.body;
-
-    const config = { ...configIn, settings: CoreConfig.settings };
+    const { config: configIn, jsonLogic, checkedFields } = req.body;
 
     // Convert checkedFields to sqlCols
     const querySelect = checkedFieldsToSQLSelect(checkedFields);
 
     // Convert tree from JSON object to an SQL where clause
-    // (NOTE andrew): loading from json logic tree currently broken: investigate
-    const value = Utils.checkTree(Utils.loadFromJsonLogic(jsTree, configIn), configIn);
+    // (NOTE andrew): probably could do some validation on each of the fields, should investigate
+    const config = {
+      ...configIn,
+      conjunctions: CoreConfig.conjunctions,
+      settings: CoreConfig.settings,
+    };
+    const value = Utils.checkTree(Utils.loadFromJsonLogic(jsonLogic, config), config);
     const queryWhere = Utils.sqlFormat(value, config);
-
-    // console.log({ querySelect, queryWhere });
 
     const results = await pool.query(
       `SELECT ${querySelect}
@@ -46,8 +46,6 @@ queryRouter.post('/advanced', async (req, res) => {
     );
     res.status(200).json(results);
   } catch (err) {
-    // console.log(err);
-
     // send 500 on any other errors
     res.status(500).send(err.message);
   }
