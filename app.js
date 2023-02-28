@@ -37,9 +37,6 @@ app.use('/surveys', surveysRouter);
 app.use('/clams', clamsRouter);
 app.use('/rakers', rakersRouter);
 
-app.use(express.json());
-app.use('/rakers', rakersRouter);
-
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
