@@ -46,8 +46,6 @@ queryRouter.post('/advanced', async (req, res) => {
     );
     res.status(200).json(results);
   } catch (err) {
-    console.log(err);
-
     // send 500 on any other errors
     res.status(500).send(err.message);
   }
