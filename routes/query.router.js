@@ -12,7 +12,7 @@ const checkedFieldsToSQLSelect = (checkedFields) => {
   let out = '';
   Object.keys(checkedFields).forEach((table) => {
     checkedFields[table].forEach((field) => {
-      out += `${pool.escapeId(`${table}.${field}`)}, `;
+      out += `${pool.escapeId(`${table}.${field}`)} AS "${field} (${table})", `;
     });
   });
   return out.substring(0, out.length - 2);
@@ -38,7 +38,7 @@ queryRouter.post('/advanced', async (req, res) => {
     const queryWhere = Utils.sqlFormat(value, config);
 
     const results = await pool.query(
-      `SELECT ${querySelect}
+      `SELECT survey.id AS sid, raker.id AS rid, clam.id AS cid, ${querySelect}
       FROM survey
       LEFT JOIN raker ON survey.id = raker.survey_id
       LEFT JOIN clam ON survey.id = clam.survey_id
@@ -46,6 +46,8 @@ queryRouter.post('/advanced', async (req, res) => {
     );
     res.status(200).json(results);
   } catch (err) {
+    console.log(err);
+
     // send 500 on any other errors
     res.status(500).send(err.message);
   }
