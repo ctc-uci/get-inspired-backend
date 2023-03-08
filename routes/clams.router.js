@@ -48,7 +48,7 @@ router.get('/raker/:rakerId', async (req, res) => {
 // Create clam
 router.post('/', async (req, res) => {
   try {
-    const { rakerId, lat, lon, length, width, weight, comments, image } = req.body;
+    const { rakerId, lat, lon, length, width, weight, comments, image, color } = req.body;
 
     isNumeric(rakerId);
     isNumeric(lat);
@@ -67,7 +67,8 @@ router.post('/', async (req, res) => {
         width,
         weight,
         comments,
-        image
+        image,
+        color
         )
       VALUES (
         :rakerId,
@@ -77,7 +78,8 @@ router.post('/', async (req, res) => {
         :width,
         :weight,
         :comments,
-        :image
+        :image,
+        :color
       );
       SELECT * FROM clam WHERE id = LAST_INSERT_ID();`,
       {
@@ -89,6 +91,7 @@ router.post('/', async (req, res) => {
         weight,
         comments,
         image,
+        color,
       },
     );
 
@@ -106,7 +109,7 @@ router.put('/:clamId', async (req, res) => {
     const { clamId } = req.params;
     isNumeric(clamId);
 
-    const { rakerId, lat, lon, length, width, weight, comments, image } = req.body;
+    const { rakerId, lat, lon, length, width, weight, comments, image, color } = req.body;
     isNumeric(rakerId);
     isNumeric(lat);
     isNumeric(lon);
@@ -125,6 +128,7 @@ router.put('/:clamId', async (req, res) => {
          ${weight ? 'weight = :weight, ' : ''}
          ${comments ? 'comments = :comments, ' : ''}
          ${image ? 'image = :image, ' : ''}
+         ${color ? 'color = :color, ' : ''}
          id = :clamId
          WHERE id = :clamId;
       SELECT * FROM clam WHERE id = :clamId;`,
@@ -138,6 +142,7 @@ router.put('/:clamId', async (req, res) => {
         weight,
         comments,
         image,
+        color,
       },
     );
 

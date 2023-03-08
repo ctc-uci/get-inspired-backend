@@ -8,5 +8,6 @@ CREATE TABLE clam IF NOT EXISTS{
     weight DOUBLE NOT NULL,
     comments TEXT NULL,
     image TEXT NULL,
+    color TEXT NOT NULL,
     FOREIGN KEY (survey_id) REFERENCES survey(id) ON DELETE CASCADE ON UPDATE CASCADE,
 };

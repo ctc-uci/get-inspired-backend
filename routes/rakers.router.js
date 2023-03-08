@@ -53,6 +53,8 @@ router.post('/', async (req, res) => {
       name,
       startLat,
       startLong,
+      midLat,
+      midLong,
       startTime,
       endTime,
       endLat,
@@ -61,17 +63,23 @@ router.post('/', async (req, res) => {
       endDepth,
       startSlope,
       endSlope,
+      distance,
+      width,
       rakeArea,
     } = req.body;
     isNumeric(surveyId);
     isNumeric(startLat);
     isNumeric(startLong);
+    isNumeric(midLat);
+    isNumeric(midLong);
     isNumeric(endLat);
     isNumeric(endLong);
     isNumeric(startDepth);
     isNumeric(endDepth);
     isNumeric(startSlope);
     isNumeric(endSlope);
+    isNumeric(distance);
+    isNumeric(width);
     isNumeric(rakeArea);
     const [query, params] = toUnnamed(
       `
@@ -80,6 +88,8 @@ router.post('/', async (req, res) => {
       name,
       start_lat,
       start_long,
+      mid_lat,
+      mid_long,
       start_time,
       end_time,
       end_lat,
@@ -88,6 +98,8 @@ router.post('/', async (req, res) => {
       end_depth,
       start_slope,
       end_slope,
+      distance,
+      width,
       rake_area
     )
     VALUES (
@@ -95,6 +107,8 @@ router.post('/', async (req, res) => {
       :name,
       :startLat,
       :startLong,
+      :midLat,
+      :midLong,
       :startTime,
       :endTime,
       :endLat,
@@ -103,6 +117,8 @@ router.post('/', async (req, res) => {
       :endSlope,
       :startSlope,
       :endSlope,
+      :distance,
+      :width,
       :rakeArea
     );
     SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
@@ -111,12 +127,16 @@ router.post('/', async (req, res) => {
         name,
         startLat,
         startLong,
+        midLat,
+        midLong,
         startTime,
         endTime,
         endLat,
         endDepth,
         startSlope,
         endSlope,
+        distance,
+        width,
         rakeArea,
       },
     );
@@ -151,6 +171,8 @@ router.put('/:rakerId', async (req, res) => {
       name,
       startLat,
       startLong,
+      midLat,
+      midLong,
       startTime,
       endTime,
       endLat,
@@ -159,6 +181,8 @@ router.put('/:rakerId', async (req, res) => {
       endDepth,
       startSlope,
       endSlope,
+      distance,
+      width,
       rakeArea,
     } = req.body;
     const [query, params] = toUnnamed(
@@ -168,6 +192,8 @@ router.put('/:rakerId', async (req, res) => {
       ${name ? 'name = :name, ' : ''}
       ${startLat ? 'start_lat = :startLat, ' : ''}
       ${startLong ? 'start_long =:startLong , ' : ''}
+      ${midLat ? 'mid_lat = :midLat, ' : ''}
+      ${midLong ? 'mid_long =:midLong , ' : ''}
       ${startTime ? 'start_time = :startTime, ' : ''}
       ${endTime ? 'end_time = :endTime, ' : ''}
       ${endLat ? 'end_lat = :endLat, ' : ''}
@@ -176,6 +202,8 @@ router.put('/:rakerId', async (req, res) => {
       ${endDepth ? 'end_depth = :endDepth, ' : ''}
       ${startSlope ? 'start_slope = :startSlope, ' : ''}
       ${endSlope ? 'end_slope = :endSlope, ' : ''}
+      ${distance ? 'distance = :distance, ' : ''}
+      ${width ? 'width = :width, ' : ''}
       ${rakeArea ? 'rake_area = :rakeArea, ' : ''}
       id = :rakerId
     WHERE id = :rakerId;
@@ -186,6 +214,8 @@ router.put('/:rakerId', async (req, res) => {
         name,
         startLat,
         startLong,
+        midLat,
+        midLong,
         startTime,
         endTime,
         endLat,
@@ -194,6 +224,8 @@ router.put('/:rakerId', async (req, res) => {
         endDepth,
         startSlope,
         endSlope,
+        distance,
+        width,
         rakeArea,
       },
     );

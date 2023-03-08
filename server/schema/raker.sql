@@ -4,6 +4,8 @@ CREATE TABLE raker(
     name VARCHAR NOT NULL,
     start_lat DECIMAL NOT NULL,
     start_long DECIMAL NOT NULL,
+    mid_lat DECIMAL NOT NULL,
+    mid_long DECIMAL NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
     end_lat DECIMAL NOT NULL,
@@ -12,6 +14,8 @@ CREATE TABLE raker(
     end_depth DECIMAL NOT NULL,
     start_slope DECIMAL NOT NULL,
     end_slope DECIMAL NOT NULL,
+    distance DECIMAL NOT NULL,
+    width DECIMAL NOT NULL,
     rake_area VARCHAR NOT NULL,
     FOREIGN KEY (survey_id) REFERENCES survey(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

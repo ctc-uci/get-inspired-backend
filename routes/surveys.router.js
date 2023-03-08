@@ -48,7 +48,20 @@ router.get('/beach/:beachId', async (req, res) => {
 // create survey
 router.post('/', async (req, res) => {
   try {
-    const { beachId, lot, date, location, method, tide } = req.body;
+    const {
+      beachId,
+      lot,
+      date,
+      location,
+      duration,
+      startDepth,
+      endDepth,
+      slope,
+      rakers,
+      startTime,
+      method,
+      tide,
+    } = req.body;
     isNumeric(beachId);
     isNumeric(lot);
     isNumeric(tide);
@@ -59,6 +72,12 @@ router.post('/', async (req, res) => {
         lot,
         date,
         location,
+        duration,
+        start_depth,
+        end_depth,
+        slope,
+        rakers,
+        start_time,
         method,
         tide
         )
@@ -67,6 +86,12 @@ router.post('/', async (req, res) => {
         :lot,
         :date,
         :location,
+        :duration,
+        :startDepth,
+        :endDepth,
+        :slope,
+        :rakers,
+        :startTime,
         :method,
         :tide
       );
@@ -76,6 +101,12 @@ router.post('/', async (req, res) => {
         lot,
         date,
         location,
+        duration,
+        startDepth,
+        endDepth,
+        slope,
+        rakers,
+        startTime,
         method,
         tide,
       },
@@ -91,7 +122,20 @@ router.post('/', async (req, res) => {
 router.put('/:surveyId', async (req, res) => {
   try {
     const { surveyId } = req.params;
-    const { beachId, lot, date, location, method, tide } = req.body;
+    const {
+      beachId,
+      lot,
+      date,
+      location,
+      duration,
+      startDepth,
+      endDepth,
+      slope,
+      rakers,
+      startTime,
+      method,
+      tide,
+    } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
@@ -99,6 +143,12 @@ router.put('/:surveyId', async (req, res) => {
          ${lot ? 'lot = :lot, ' : ''}
          ${date ? 'date = :date, ' : ''}
          ${location ? 'location = :location, ' : ''}
+         ${duration ? 'duration = :duration, ' : ''}
+         ${startDepth ? 'start_depth = :startDepth, ' : ''}
+         ${endDepth ? 'end_depth = :endDepth, ' : ''}
+         ${slope ? 'slope = :slope, ' : ''}
+         ${rakers ? 'rakers = :rakers, ' : ''}
+         ${startTime ? 'start_time = :startTime, ' : ''}
          ${method ? 'method = :method, ' : ''}
          ${tide ? 'tide = :tide, ' : ''}
          id = :surveyId
@@ -110,6 +160,12 @@ router.put('/:surveyId', async (req, res) => {
         lot,
         date,
         location,
+        duration,
+        startDepth,
+        endDepth,
+        slope,
+        rakers,
+        startTime,
         method,
         tide,
       },
