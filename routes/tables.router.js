@@ -6,13 +6,13 @@ require('dotenv').config('..');
 
 const tablesRouter = express.Router();
 
-// Get all tables
+// Get the names of all of the tables (minus the users table)
 tablesRouter.get('/', async (req, res) => {
   try {
     const tables = await pool.query(
       `SELECT table_name FROM information_schema.tables WHERE table_schema = "${process.env.AWS_DB_NAME}"`,
     );
-    res.status(200).send(tables);
+    res.status(200).send(tables.map((table) => table.TABLE_NAME).filter((name) => name !== 'user'));
   } catch (error) {
     res.status(500).send(error.message);
   }
