@@ -5,11 +5,11 @@ CREATE TABLE survey(
   location TEXT,
   method TEXT,
   date DATETIME,
-  start_depth DECIMAL,
-  end_depth DECIMAL,
-  tide DECIMAL,
+  start_depth DOUBLE,
+  end_depth DOUBLE,
+  tide DOUBLE,
   duration INTEGER,
-  distance DECIMAL,
-  slope DECIMAL,
+  distance DOUBLE,
+  slope DOUBLE,
   rakers INTEGER
 );
