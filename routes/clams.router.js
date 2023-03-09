@@ -30,27 +30,12 @@ router.get('/:clamId', async (req, res) => {
   }
 });
 
-// Get data for clams based on rakerId
-router.get('/raker/:rakerId', async (req, res) => {
-  try {
-    const { rakerId } = req.params;
-    isNumeric(rakerId);
-
-    const [query, params] = toUnnamed('SELECT * FROM clam WHERE raker_id = :rakerId', { rakerId });
-    const clams = await pool.query(query, params);
-
-    res.status(200).json(keysToCamel(clams));
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
 // Create clam
 router.post('/', async (req, res) => {
   try {
-    const { rakerId, lat, lon, length, width, weight, comments, image, color } = req.body;
+    const { surveyId, name, color, lat, lon, length, width, weight, comments, image } = req.body;
 
-    isNumeric(rakerId);
+    isNumeric(surveyId);
     isNumeric(lat);
     isNumeric(lon);
     isNumeric(length);
@@ -60,30 +45,34 @@ router.post('/', async (req, res) => {
     const [query, params] = toUnnamed(
       `
       INSERT INTO clam (
-        raker_id,
+        survey_id,
+        name,
+        color,
         lat,
         lon,
         length,
         width,
         weight,
         comments,
-        image,
-        color
+        image
         )
       VALUES (
-        :rakerId,
+        :surveyId,
+        :name,
+        :color,
         :lat,
         :lon,
         :length,
         :width,
         :weight,
         :comments,
-        :image,
-        :color
+        :image
       );
       SELECT * FROM clam WHERE id = LAST_INSERT_ID();`,
       {
-        rakerId,
+        surveyId,
+        name,
+        color,
         lat,
         lon,
         length,
@@ -91,7 +80,6 @@ router.post('/', async (req, res) => {
         weight,
         comments,
         image,
-        color,
       },
     );
 
@@ -109,8 +97,9 @@ router.put('/:clamId', async (req, res) => {
     const { clamId } = req.params;
     isNumeric(clamId);
 
-    const { rakerId, lat, lon, length, width, weight, comments, image, color } = req.body;
-    isNumeric(rakerId);
+    const { surveyId, name, color, lat, lon, length, width, weight, comments, image } = req.body;
+
+    isNumeric(surveyId);
     isNumeric(lat);
     isNumeric(lon);
     isNumeric(length);
@@ -120,7 +109,9 @@ router.put('/:clamId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE clam
          SET
-         ${rakerId ? 'raker_id = :rakerId, ' : ''}
+         ${surveyId ? 'survey_id = :surveyId, ' : ''}
+         ${name ? 'name = :name, ' : ''}
+         ${color ? 'color = :color, ' : ''}
          ${lat ? 'lat = :lat, ' : ''}
          ${lon ? 'lon = :lon, ' : ''}
          ${length ? 'length = :length, ' : ''}
@@ -128,13 +119,14 @@ router.put('/:clamId', async (req, res) => {
          ${weight ? 'weight = :weight, ' : ''}
          ${comments ? 'comments = :comments, ' : ''}
          ${image ? 'image = :image, ' : ''}
-         ${color ? 'color = :color, ' : ''}
          id = :clamId
          WHERE id = :clamId;
       SELECT * FROM clam WHERE id = :clamId;`,
       {
         clamId,
-        rakerId,
+        surveyId,
+        name,
+        color,
         lat,
         lon,
         length,
@@ -142,7 +134,6 @@ router.put('/:clamId', async (req, res) => {
         weight,
         comments,
         image,
-        color,
       },
     );
 

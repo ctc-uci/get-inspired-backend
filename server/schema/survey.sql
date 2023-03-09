@@ -1,15 +1,15 @@
 CREATE TABLE survey(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  beach_id INTEGER,
-  lot INTEGER,
+  id INTEGER PRIMARY KEY AUTO_INCREMENT,
+  beach TEXT,
+  start_time TIME,
+  location TEXT,
+  method TEXT,
   date DATETIME,
-  location VARCHAR,
-  duration INTEGER,
   start_depth DECIMAL,
   end_depth DECIMAL,
+  tide DECIMAL,
+  duration INTEGER,
+  distance DECIMAL,
   slope DECIMAL,
-  rakers INTEGER,
-  start_time TIME,
-  method VARCHAR,
-  tide DOUBLE
+  rakers INTEGER
 );
