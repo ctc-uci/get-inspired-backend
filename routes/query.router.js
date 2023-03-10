@@ -112,7 +112,7 @@ queryRouter.post('/advanced', async (req, res) => {
     const queryWhere = Utils.sqlFormat(value, config);
 
     const results = await pool.query(
-      `SELECT ${querySelect}
+      `SELECT DISTINCT ${querySelect}
       FROM ${queryJoin}
       ${queryWhere ? `WHERE ${queryWhere}` : ''};`,
     );
