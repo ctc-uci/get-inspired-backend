@@ -61,7 +61,7 @@ router.get('/manageDataOptions', async (req, res) => {
     const formattedSurveys = (await Promise.all(surveyPromises)).map((surveys) =>
       surveys.map((value) => ({
         label: surveyInfoToSummary(value),
-        value,
+        value: value.id,
       })),
     );
     const map = years.reduce(

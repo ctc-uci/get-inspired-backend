@@ -45,6 +45,21 @@ router.get('/raker/:rakerId', async (req, res) => {
   }
 });
 
+// Get data for clams based on surveyId
+router.get('/survey/:surveyId', async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+
+    const [query, params] = toUnnamed('SELECT * FROM clam WHERE survey_id = :surveyId', {
+      surveyId,
+    });
+    const clams = await pool.query(query, params);
+    res.status(200).json(keysToCamel(clams));
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 // Create clam
 router.post('/', async (req, res) => {
   try {
