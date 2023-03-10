@@ -45,6 +45,42 @@ router.get('/beach/:beachId', async (req, res) => {
   }
 });
 
+const surveyInfoToSummary = ({ formatted_date: formattedDate, beach_id: beachId, location }) => {
+  return `${formattedDate} - ${beachId} - ${location}`;
+};
+
+// Build the date to survey map
+router.get('/manageDataOptions', async (req, res) => {
+  try {
+    const years = await pool.query(`SELECT DISTINCT YEAR(date) AS year FROM survey`);
+    const surveyPromises = years.map((year) =>
+      pool.query(
+        `SELECT *, DATE_FORMAT(date, '%M %d %Y') as formatted_date FROM survey WHERE YEAR(date) = ${year.year}`,
+      ),
+    );
+    const formattedSurveys = (await Promise.all(surveyPromises)).map((surveys) =>
+      surveys.map((value) => ({
+        label: surveyInfoToSummary(value),
+        value: value.id,
+      })),
+    );
+    const map = years.reduce(
+      (acc, year, index) => [
+        ...acc,
+        {
+          label: year.year.toString(),
+          value: year.year.toString(),
+          children: formattedSurveys[index],
+        },
+      ],
+      [],
+    );
+    res.status(200).json(keysToCamel(map));
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 // create survey
 router.post('/', async (req, res) => {
   try {
