@@ -38,8 +38,8 @@ router.get('/survey/:surveyId', async (req, res) => {
     const [query, params] = toUnnamed('SELECT * FROM raker WHERE survey_id = :surveyId', {
       surveyId,
     });
-    const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker[0]));
+    const rakers = await pool.query(query, params);
+    res.status(200).json(keysToCamel(rakers));
   } catch (err) {
     res.status(500).send(err.message);
   }
