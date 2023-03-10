@@ -22,9 +22,10 @@ const checkedFieldsToSQLSelect = (checkedFields) => {
 
 // Advanced Search: from a series of checked fields, generate the necesary joins
 const checkedFieldsToSQLJoin = (checkedFields) => {
-  const surveySelected = 'survey' in checkedFields;
-  const rakerSelected = 'raker' in checkedFields;
-  const clamSelected = 'clam' in checkedFields;
+  const isArray = Array.isArray(checkedFields);
+  const surveySelected = (isArray && checkedFields.includes('survey')) || 'survey' in checkedFields;
+  const rakerSelected = (isArray && checkedFields.includes('raker')) || 'raker' in checkedFields;
+  const clamSelected = (isArray && checkedFields.includes('clam')) || 'clam' in checkedFields;
 
   let res = '';
   // All 3 tables selected
