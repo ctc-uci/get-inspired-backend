@@ -50,7 +50,7 @@ const surveyInfoToSummary = ({ formatted_date: formattedDate, beach_id: beachId,
 };
 
 // Build the date to survey map
-router.get('/manageDataMap', async (req, res) => {
+router.get('/manageDataOptions', async (req, res) => {
   try {
     const years = await pool.query(`SELECT DISTINCT YEAR(date) AS year FROM survey`);
     const surveyPromises = years.map((year) =>
