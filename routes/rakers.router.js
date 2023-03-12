@@ -50,74 +50,86 @@ router.post('/', async (req, res) => {
   try {
     const {
       surveyId,
+      number,
       name,
-      startLat,
-      startLong,
       startTime,
       endTime,
+      startLat,
+      startLong,
+      midLat,
+      midLong,
       endLat,
       endLong,
       startDepth,
       endDepth,
-      startSlope,
-      endSlope,
-      rakeArea,
+      rakeDistance,
+      rakeWidth,
     } = req.body;
     isNumeric(surveyId);
+    isNumeric(number);
     isNumeric(startLat);
     isNumeric(startLong);
+    isNumeric(midLat);
+    isNumeric(midLong);
     isNumeric(endLat);
     isNumeric(endLong);
     isNumeric(startDepth);
     isNumeric(endDepth);
-    isNumeric(startSlope);
-    isNumeric(endSlope);
-    isNumeric(rakeArea);
+    isNumeric(rakeDistance);
+    isNumeric(rakeWidth);
     const [query, params] = toUnnamed(
       `
     INSERT INTO raker (
       survey_id,
+      number,
       name,
-      start_lat,
-      start_long,
       start_time,
       end_time,
+      start_lat,
+      start_long,
+      mid_lat,
+      mid_long,
       end_lat,
       end_long,
       start_depth,
       end_depth,
-      start_slope,
-      end_slope,
-      rake_area
+      rake_distance,
+      rake_width,
     )
     VALUES (
       :surveyId,
+      :number,
       :name,
-      :startLat,
-      :startLong,
       :startTime,
       :endTime,
+      :startLat,
+      :startLong,
+      :midLat,
+      :midLong,
       :endLat,
+      :endLong,
+      :startDepth,
       :endDepth,
-      :startSlope,
-      :endSlope,
-      :startSlope,
-      :endSlope,
-      :rakeArea
+      :rakeDistance,
+      :rakeWidth,
     );
     SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
       {
         surveyId,
+        number,
         name,
-        startLat,
-        startLong,
         startTime,
         endTime,
+        startLat,
+        startLong,
+        midLat,
+        midLong,
         endLat,
+        endLong,
+        startDepth,
         endDepth,
-        startSlope,
-        endSlope,
-        rakeArea,
+        rakeDistance,
+        rakeWidth,
       },
     );
     const raker = await pool.query(query, params);
@@ -145,56 +157,60 @@ router.delete('/:rakerId', async (req, res) => {
 // update raker
 router.put('/:rakerId', async (req, res) => {
   try {
-    const { rakerId } = req.params;
     const {
       surveyId,
+      number,
       name,
-      startLat,
-      startLong,
       startTime,
       endTime,
+      startLat,
+      startLong,
+      midLat,
+      midLong,
       endLat,
       endLong,
       startDepth,
       endDepth,
-      startSlope,
-      endSlope,
-      rakeArea,
+      rakeDistance,
+      rakeWidth,
     } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE raker
       SET
       ${surveyId ? 'survey_id = :surveyId, ' : ''}
+      ${number ? 'number = :number, ' : ''}
       ${name ? 'name = :name, ' : ''}
-      ${startLat ? 'start_lat = :startLat, ' : ''}
-      ${startLong ? 'start_long =:startLong , ' : ''}
       ${startTime ? 'start_time = :startTime, ' : ''}
       ${endTime ? 'end_time = :endTime, ' : ''}
+      ${startLat ? 'start_lat = :startLat, ' : ''}
+      ${startLong ? 'start_long =:startLong , ' : ''}
+      ${midLat ? 'mid_lat = :midLat, ' : ''}
+      ${midLong ? 'mid_long =:midLong , ' : ''}
       ${endLat ? 'end_lat = :endLat, ' : ''}
       ${endLong ? 'end_long = :endLong, ' : ''}
       ${startDepth ? 'start_depth = :startDepth, ' : ''}
       ${endDepth ? 'end_depth = :endDepth, ' : ''}
-      ${startSlope ? 'start_slope = :startSlope, ' : ''}
-      ${endSlope ? 'end_slope = :endSlope, ' : ''}
-      ${rakeArea ? 'rake_area = :rakeArea, ' : ''}
+      ${rakeDistance ? 'rake_distance = :rakeDistance, ' : ''}
+      ${rakeWidth ? 'rake_width = :rakeWidth, ' : ''}
       id = :rakerId
     WHERE id = :rakerId;
     SELECT * FROM raker WHERE id = :rakerId;`,
       {
-        rakerId,
         surveyId,
+        number,
         name,
-        startLat,
-        startLong,
         startTime,
         endTime,
+        startLat,
+        startLong,
+        midLat,
+        midLong,
         endLat,
         endLong,
         startDepth,
         endDepth,
-        startSlope,
-        endSlope,
-        rakeArea,
+        rakeDistance,
+        rakeWidth,
       },
     );
     const updatedRaker = await pool.query(query, params);

@@ -84,36 +84,68 @@ router.get('/manageDataOptions', async (req, res) => {
 // create survey
 router.post('/', async (req, res) => {
   try {
-    const { beachId, lot, date, location, method, tide } = req.body;
-    isNumeric(beachId);
-    isNumeric(lot);
+    const {
+      beach,
+      startTime,
+      location,
+      method,
+      date,
+      startDepth,
+      endDepth,
+      tide,
+      duration,
+      distance,
+      slope,
+    } = req.body;
+
+    isNumeric(startDepth);
+    isNumeric(endDepth);
     isNumeric(tide);
+    isNumeric(duration);
+    isNumeric(distance);
+    isNumeric(slope);
+
     const [query, params] = toUnnamed(
       `
       INSERT INTO survey (
-        beach_id,
-        lot,
-        date,
+        beach,
+        start_time,
         location,
         method,
-        tide
+        date,
+        start_depth,
+        end_depth,
+        tide,
+        duration,
+        distance,
+        slope,
         )
       VALUES (
-        :beachId,
-        :lot,
-        :date,
+        :beach,
+        :startTime,
         :location,
         :method,
-        :tide
+        :date,
+        :startDepth,
+        :endDepth,
+        :tide,
+        :duration,
+        :distance,
+        :slope,
       );
       SELECT * FROM survey WHERE id = LAST_INSERT_ID();`,
       {
-        beachId,
-        lot,
-        date,
+        beach,
+        startTime,
         location,
         method,
+        date,
+        startDepth,
+        endDepth,
         tide,
+        duration,
+        distance,
+        slope,
       },
     );
     const survey = await pool.query(query, params);
@@ -127,27 +159,57 @@ router.post('/', async (req, res) => {
 router.put('/:surveyId', async (req, res) => {
   try {
     const { surveyId } = req.params;
-    const { beachId, lot, date, location, method, tide } = req.body;
+    const {
+      beach,
+      startTime,
+      location,
+      method,
+      date,
+      startDepth,
+      endDepth,
+      tide,
+      duration,
+      distance,
+      slope,
+    } = req.body;
+
+    isNumeric(surveyId);
+    isNumeric(startDepth);
+    isNumeric(endDepth);
+    isNumeric(tide);
+    isNumeric(duration);
+    isNumeric(distance);
+    isNumeric(slope);
+
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-         ${beachId ? 'beach_id = :beachId, ' : ''}
-         ${lot ? 'lot = :lot, ' : ''}
-         ${date ? 'date = :date, ' : ''}
+         ${beach ? 'beach_id = :beachId, ' : ''}
+         ${startTime ? 'start_time = :startTime, ' : ''}
          ${location ? 'location = :location, ' : ''}
          ${method ? 'method = :method, ' : ''}
+         ${date ? 'date = :date, ' : ''}
+         ${startDepth ? 'start_depth = :startDepth, ' : ''}
+         ${endDepth ? 'end_depth = :endDepth, ' : ''}
          ${tide ? 'tide = :tide, ' : ''}
+         ${duration ? 'duration = :duration, ' : ''}
+         ${distance ? 'distance = :distance, ' : ''}
+         ${slope ? 'slope = :slope, ' : ''}
          id = :surveyId
         WHERE id = :surveyId;
       SELECT * FROM survey WHERE id = :surveyId`,
       {
-        surveyId,
-        beachId,
-        lot,
-        date,
+        beach,
+        startTime,
         location,
         method,
+        date,
+        startDepth,
+        endDepth,
         tide,
+        duration,
+        distance,
+        slope,
       },
     );
     const updatedSurvey = await pool.query(query, params);
