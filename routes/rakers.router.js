@@ -50,6 +50,7 @@ router.post('/', async (req, res) => {
   try {
     const {
       surveyId,
+      number,
       name,
       startTime,
       endTime,
@@ -65,6 +66,7 @@ router.post('/', async (req, res) => {
       rakeWidth,
     } = req.body;
     isNumeric(surveyId);
+    isNumeric(number);
     isNumeric(startLat);
     isNumeric(startLong);
     isNumeric(midLat);
@@ -79,6 +81,7 @@ router.post('/', async (req, res) => {
       `
     INSERT INTO raker (
       survey_id,
+      number,
       name,
       start_time,
       end_time,
@@ -95,6 +98,7 @@ router.post('/', async (req, res) => {
     )
     VALUES (
       :surveyId,
+      :number,
       :name,
       :startTime,
       :endTime,
@@ -112,6 +116,7 @@ router.post('/', async (req, res) => {
     SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
       {
         surveyId,
+        number,
         name,
         startTime,
         endTime,
@@ -154,6 +159,7 @@ router.put('/:rakerId', async (req, res) => {
   try {
     const {
       surveyId,
+      number,
       name,
       startTime,
       endTime,
@@ -172,6 +178,7 @@ router.put('/:rakerId', async (req, res) => {
       `UPDATE raker
       SET
       ${surveyId ? 'survey_id = :surveyId, ' : ''}
+      ${number ? 'number = :number, ' : ''}
       ${name ? 'name = :name, ' : ''}
       ${startTime ? 'start_time = :startTime, ' : ''}
       ${endTime ? 'end_time = :endTime, ' : ''}
@@ -190,6 +197,7 @@ router.put('/:rakerId', async (req, res) => {
     SELECT * FROM raker WHERE id = :rakerId;`,
       {
         surveyId,
+        number,
         name,
         startTime,
         endTime,
