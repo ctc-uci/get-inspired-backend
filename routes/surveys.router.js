@@ -60,7 +60,6 @@ router.post('/', async (req, res) => {
       duration,
       distance,
       slope,
-      rakers,
     } = req.body;
 
     isNumeric(startDepth);
@@ -84,7 +83,6 @@ router.post('/', async (req, res) => {
         duration,
         distance,
         slope,
-        rakers
         )
       VALUES (
         :beach,
@@ -98,7 +96,6 @@ router.post('/', async (req, res) => {
         :duration,
         :distance,
         :slope,
-        :rakers
       );
       SELECT * FROM survey WHERE id = LAST_INSERT_ID();`,
       {
@@ -113,7 +110,6 @@ router.post('/', async (req, res) => {
         duration,
         distance,
         slope,
-        rakers,
       },
     );
     const survey = await pool.query(query, params);
@@ -139,7 +135,6 @@ router.put('/:surveyId', async (req, res) => {
       duration,
       distance,
       slope,
-      rakers,
     } = req.body;
 
     isNumeric(surveyId);
@@ -164,7 +159,6 @@ router.put('/:surveyId', async (req, res) => {
          ${duration ? 'duration = :duration, ' : ''}
          ${distance ? 'distance = :distance, ' : ''}
          ${slope ? 'slope = :slope, ' : ''}
-         ${rakers ? 'rakers = :rakers, ' : ''}
          id = :surveyId
         WHERE id = :surveyId;
       SELECT * FROM survey WHERE id = :surveyId`,
@@ -180,7 +174,6 @@ router.put('/:surveyId', async (req, res) => {
         duration,
         distance,
         slope,
-        rakers,
       },
     );
     const updatedSurvey = await pool.query(query, params);
