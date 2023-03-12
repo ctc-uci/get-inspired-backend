@@ -10,6 +10,5 @@ CREATE TABLE survey(
   tide DOUBLE,
   duration INTEGER,
   distance DOUBLE,
-  slope DOUBLE,
-  rakers INTEGER
+  slope DOUBLE
 );
