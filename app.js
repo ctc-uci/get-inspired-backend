@@ -8,6 +8,7 @@ const rakersRouter = require('./routes/rakers.router');
 const clamsRouter = require('./routes/clams.router');
 const tablesRouter = require('./routes/tables.router');
 const queryRouter = require('./routes/query.router');
+const csvRouter = require('./routes/csv.router');
 
 require('dotenv').config();
 
@@ -39,6 +40,7 @@ app.use('/clams', clamsRouter);
 app.use('/rakers', rakersRouter);
 app.use('/tables', tablesRouter);
 app.use('/query', queryRouter);
+app.use('/csv', csvRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
