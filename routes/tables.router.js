@@ -76,4 +76,23 @@ tablesRouter.delete('/:tableName/:columnName', async (req, res) => {
   }
 });
 
+tablesRouter.put('/:tableName/:columnName/:attributeName', async (req, res) => {
+  try {
+    const { tableName, columnName, attributeName } = req.params;
+    const [query, params] = toUnnamed(
+      `ALTER TABLE ${tableName} RENAME COLUMN ${columnName} TO ${attributeName};`,
+      {
+        tableName,
+        columnName,
+        attributeName,
+      },
+    );
+    console.log(query);
+    const table = await pool.query(query, params);
+    res.status(200).send(table); // a little confused on what this does
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 module.exports = tablesRouter;
