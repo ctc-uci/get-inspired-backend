@@ -61,6 +61,7 @@ router.get('/survey/:surveyId', async (req, res) => {
 });
 
 // Create clam
+// TODO: GET ALL COLUMNS DYNAMICALLY
 router.post('/', async (req, res) => {
   try {
     const { surveyId, name, color, lat, lon, length, width, weight, comments, image } = req.body;

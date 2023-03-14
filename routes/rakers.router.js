@@ -1,3 +1,4 @@
+/* eslint-disable */
 const express = require('express');
 const toUnnamed = require('named-placeholders')();
 const { pool } = require('../server/db');
@@ -46,37 +47,39 @@ router.get('/survey/:surveyId', async (req, res) => {
 });
 
 // create raker
+// TODO: GET ALL COLUMNS DYNAMICALLY
 router.post('/', async (req, res) => {
   try {
     const {
       surveyId,
       number,
       name,
-      startTime,
-      endTime,
-      startLat,
-      startLong,
-      midLat,
-      midLong,
-      endLat,
-      endLong,
-      startDepth,
-      endDepth,
-      rakeDistance,
-      rakeWidth,
+      start_time,
+      end_time,
+      start_lat,
+      start_long,
+      mid_lat,
+      mid_long,
+      end_lat,
+      end_long,
+      start_depth,
+      end_depth,
+      rake_distance,
+      rake_width,
     } = req.body;
-    isNumeric(surveyId);
-    isNumeric(number);
-    isNumeric(startLat);
-    isNumeric(startLong);
-    isNumeric(midLat);
-    isNumeric(midLong);
-    isNumeric(endLat);
-    isNumeric(endLong);
-    isNumeric(startDepth);
-    isNumeric(endDepth);
-    isNumeric(rakeDistance);
-    isNumeric(rakeWidth);
+    console.log(req.body);
+    // isNumeric(surveyId);
+    // isNumeric(number);
+    // isNumeric(startLat);
+    // isNumeric(startLong);
+    // isNumeric(midLat);
+    // isNumeric(midLong);
+    // isNumeric(endLat);
+    // isNumeric(endLong);
+    // isNumeric(startDepth);
+    // isNumeric(endDepth);
+    // isNumeric(rakeDistance);
+    // isNumeric(rakeWidth);
     const [query, params] = toUnnamed(
       `
     INSERT INTO raker (
@@ -94,42 +97,42 @@ router.post('/', async (req, res) => {
       start_depth,
       end_depth,
       rake_distance,
-      rake_width,
+      rake_width
     )
     VALUES (
       :surveyId,
       :number,
       :name,
-      :startTime,
-      :endTime,
-      :startLat,
-      :startLong,
-      :midLat,
-      :midLong,
-      :endLat,
-      :endLong,
-      :startDepth,
-      :endDepth,
-      :rakeDistance,
-      :rakeWidth,
+      :start_time,
+      :end_time,
+      :start_lat,
+      :start_long,
+      :mid_lat,
+      :mid_long,
+      :end_lat,
+      :end_long,
+      :start_depth,
+      :end_depth,
+      :rake_distance,
+      :rake_width
     );
     SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
       {
         surveyId,
         number,
         name,
-        startTime,
-        endTime,
-        startLat,
-        startLong,
-        midLat,
-        midLong,
-        endLat,
-        endLong,
-        startDepth,
-        endDepth,
-        rakeDistance,
-        rakeWidth,
+        start_time,
+        end_time,
+        start_lat,
+        start_long,
+        mid_lat,
+        mid_long,
+        end_lat,
+        end_long,
+        start_depth,
+        end_depth,
+        rake_distance,
+        rake_width,
       },
     );
     const raker = await pool.query(query, params);

@@ -90,21 +90,17 @@ router.post('/', async (req, res) => {
       location,
       method,
       date,
-      startDepth,
-      endDepth,
+      waterDepth,
       tide,
       duration,
       distance,
       slope,
     } = req.body;
 
-    isNumeric(startDepth);
-    isNumeric(endDepth);
-    isNumeric(tide);
+    isNumeric(waterDepth);
     isNumeric(duration);
     isNumeric(distance);
     isNumeric(slope);
-
     const [query, params] = toUnnamed(
       `
       INSERT INTO survey (
@@ -113,12 +109,11 @@ router.post('/', async (req, res) => {
         location,
         method,
         date,
-        start_depth,
-        end_depth,
+        water_depth,
         tide,
         duration,
         distance,
-        slope,
+        slope
         )
       VALUES (
         :beach,
@@ -126,12 +121,11 @@ router.post('/', async (req, res) => {
         :location,
         :method,
         :date,
-        :startDepth,
-        :endDepth,
+        :waterDepth,
         :tide,
         :duration,
         :distance,
-        :slope,
+        :slope
       );
       SELECT * FROM survey WHERE id = LAST_INSERT_ID();`,
       {
@@ -140,8 +134,7 @@ router.post('/', async (req, res) => {
         location,
         method,
         date,
-        startDepth,
-        endDepth,
+        waterDepth,
         tide,
         duration,
         distance,
@@ -156,6 +149,7 @@ router.post('/', async (req, res) => {
 });
 
 // update survey
+// TODO: GET ALL COLUMNS DYNAMICALLY
 router.put('/:surveyId', async (req, res) => {
   try {
     const { surveyId } = req.params;
