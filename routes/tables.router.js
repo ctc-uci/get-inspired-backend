@@ -40,7 +40,6 @@ tablesRouter.get('/:table/columns', async (req, res) => {
 // Change table columns
 tablesRouter.post('/:tableName/:newAttributeName/:dataType', async (req, res) => {
   try {
-    console.log(req.params)
     const { tableName, newAttributeName, dataType } = req.params;
     const [query, params] = toUnnamed(
       `ALTER TABLE ${tableName}
@@ -51,7 +50,25 @@ tablesRouter.post('/:tableName/:newAttributeName/:dataType', async (req, res) =>
         dataType,
       },
     );
-    console.log(query)
+    const table = await pool.query(query, params);
+    res.status(200).send(table); // a little confused on what this does
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+tablesRouter.delete('/:tableName/:columnName', async (req, res) => {
+  try {
+    const { tableName, columnName } = req.params;
+    const [query, params] = toUnnamed(
+      `ALTER TABLE ${tableName}
+    DROP COLUMN ${columnName};`,
+      {
+        tableName,
+        columnName,
+      },
+    );
+    console.log(query);
     const table = await pool.query(query, params);
     res.status(200).send(table); // a little confused on what this does
   } catch (error) {
