@@ -1,0 +1,12 @@
+CREATE TABLE clam IF NOT EXISTS{
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    survey_id INTEGER NOT NULL,
+    lat DOUBLE NOT NULL,
+    lon DOUBLE NOT NULL,
+    length DOUBLE NOT NULL,
+    width DOUBLE NOT NULL,
+    weight DOUBLE NOT NULL,
+    comments TEXT NULL,
+    image TEXT NULL,
+    FOREIGN KEY (survey_id) REFERENCES survey(id) ON DELETE CASCADE ON UPDATE CASCADE,
+};

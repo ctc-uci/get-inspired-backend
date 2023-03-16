@@ -6,6 +6,8 @@ const pool = mysql.createPool({
   host: process.env.AWS_HOST,
   user: process.env.AWS_USER,
   password: process.env.AWS_PASSWORD,
+  multipleStatements: true,
+  database: process.env.AWS_DB_NAME,
 });
 
 pool.getConnection((e, connection) => {
@@ -19,7 +21,6 @@ pool.getConnection((e, connection) => {
     console.error(codes[e.code]);
   }
   if (connection) {
-    pool.query(`USE ${process.env.AWS_DB_NAME};`);
     // eslint-disable-line
     console.log('Connected to mysql successfully');
   }
