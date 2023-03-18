@@ -76,7 +76,7 @@ userRouter.get('/:id', async (req, res) => {
 userRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, role } = req.body;
+    const { firstName, lastName, role, password } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE user
          SET
@@ -94,6 +94,11 @@ userRouter.put('/:id', async (req, res) => {
       },
     );
     const updatedUser = await pool.query(query, params);
+    if (password) {
+      await admin.auth().updateUser(id, {
+        password,
+      });
+    }
     res.status(200).json(keysToCamel(updatedUser));
   } catch (err) {
     res.status(500).send(err.message);
