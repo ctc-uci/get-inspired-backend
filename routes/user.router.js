@@ -76,29 +76,30 @@ userRouter.get('/:id', async (req, res) => {
 userRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, role, password } = req.body;
+    const { firstName, lastName, role, email, password } = req.body;
     const [query, params] = toUnnamed(
       `UPDATE user
          SET
          ${firstName ? 'first_name = :firstName, ' : ''}
          ${lastName ? 'last_name = :lastName, ' : ''}
          ${role ? 'role = :role, ' : ''}
+         ${email ? 'email = :email, ' : ''}
          id = :id
         WHERE id = :id;
       SELECT * FROM user WHERE id = :id`,
       {
         firstName,
         lastName,
+        email,
         role,
         id,
       },
     );
     const updatedUser = await pool.query(query, params);
-    if (password) {
-      await admin.auth().updateUser(id, {
-        password,
-      });
-    }
+    await admin.auth().updateUser(id, {
+      email: email.length ? email : undefined,
+      password: password.length ? password : undefined,
+    });
     res.status(200).json(keysToCamel(updatedUser));
   } catch (err) {
     res.status(500).send(err.message);
