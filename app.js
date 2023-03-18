@@ -6,6 +6,8 @@ const usersRouter = require('./routes/user.router');
 const surveysRouter = require('./routes/surveys.router');
 const rakersRouter = require('./routes/rakers.router');
 const clamsRouter = require('./routes/clams.router');
+const tablesRouter = require('./routes/tables.router');
+const queryRouter = require('./routes/query.router');
 
 require('dotenv').config();
 
@@ -22,7 +24,6 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(express.json());
 
 const PORT =
   !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
@@ -36,6 +37,8 @@ app.use('/auth', authRouter);
 app.use('/surveys', surveysRouter);
 app.use('/clams', clamsRouter);
 app.use('/rakers', rakersRouter);
+app.use('/tables', tablesRouter);
+app.use('/query', queryRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
