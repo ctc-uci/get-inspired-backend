@@ -37,4 +37,60 @@ tablesRouter.get('/:table/columns', async (req, res) => {
   }
 });
 
+// Change table columns
+tablesRouter.post('/:tableName/:newAttributeName/:dataType', async (req, res) => {
+  try {
+    const { tableName, newAttributeName, dataType } = req.params;
+    const [query, params] = toUnnamed(
+      `ALTER TABLE ${tableName}
+    ADD \`${newAttributeName.trim()}\` ${dataType} NOT NULL;`,
+      {
+        tableName,
+        newAttributeName,
+        dataType,
+      },
+    );
+    const table = await pool.query(query, params);
+    res.status(200).send(table);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+tablesRouter.delete('/:tableName/:columnName', async (req, res) => {
+  try {
+    const { tableName, columnName } = req.params;
+    const [query, params] = toUnnamed(
+      `ALTER TABLE ${tableName}
+    DROP COLUMN \`${columnName.trim()}\`;`,
+      {
+        tableName,
+        columnName,
+      },
+    );
+    const table = await pool.query(query, params);
+    res.status(200).send(table);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+tablesRouter.put('/:tableName/:columnName/:attributeName', async (req, res) => {
+  try {
+    const { tableName, columnName, attributeName } = req.params;
+    const [query, params] = toUnnamed(
+      `ALTER TABLE ${tableName} RENAME COLUMN \`${columnName}\` TO \`${attributeName.trim()}\`;`,
+      {
+        tableName,
+        columnName,
+        attributeName,
+      },
+    );
+    const table = await pool.query(query, params);
+    res.status(200).send(table);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 module.exports = tablesRouter;
