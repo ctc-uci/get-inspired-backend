@@ -184,7 +184,7 @@ router.put('/:surveyId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-         ${beach ? 'beach_id = :beachId, ' : ''}
+         ${beach ? 'beach = :beach, ' : ''}
          ${startTime ? 'start_time = :startTime, ' : ''}
          ${location ? 'location = :location, ' : ''}
          ${method ? 'method = :method, ' : ''}
@@ -210,6 +210,7 @@ router.put('/:surveyId', async (req, res) => {
         duration,
         distance,
         slope,
+        surveyId,
       },
     );
     const updatedSurvey = await pool.query(query, params);
