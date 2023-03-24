@@ -43,7 +43,7 @@ tablesRouter.post('/:tableName/:newAttributeName/:dataType', async (req, res) =>
     const { tableName, newAttributeName, dataType } = req.params;
     const [query, params] = toUnnamed(
       `ALTER TABLE ${tableName}
-    ADD ${newAttributeName} ${dataType};`,
+    ADD \`${newAttributeName}\` ${dataType} NOT NULL;`,
       {
         tableName,
         newAttributeName,
@@ -51,7 +51,7 @@ tablesRouter.post('/:tableName/:newAttributeName/:dataType', async (req, res) =>
       },
     );
     const table = await pool.query(query, params);
-    res.status(200).send(table); // a little confused on what this does
+    res.status(200).send(table);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -62,14 +62,14 @@ tablesRouter.delete('/:tableName/:columnName', async (req, res) => {
     const { tableName, columnName } = req.params;
     const [query, params] = toUnnamed(
       `ALTER TABLE ${tableName}
-    DROP COLUMN ${columnName};`,
+    DROP COLUMN \`${columnName}\`;`,
       {
         tableName,
         columnName,
       },
     );
     const table = await pool.query(query, params);
-    res.status(200).send(table); // a little confused on what this does
+    res.status(200).send(table);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -79,7 +79,7 @@ tablesRouter.put('/:tableName/:columnName/:attributeName', async (req, res) => {
   try {
     const { tableName, columnName, attributeName } = req.params;
     const [query, params] = toUnnamed(
-      `ALTER TABLE ${tableName} RENAME COLUMN ${columnName} TO ${attributeName};`,
+      `ALTER TABLE ${tableName} RENAME COLUMN \`${columnName}\` TO \`${attributeName}\`;`,
       {
         tableName,
         columnName,
@@ -87,7 +87,7 @@ tablesRouter.put('/:tableName/:columnName/:attributeName', async (req, res) => {
       },
     );
     const table = await pool.query(query, params);
-    res.status(200).send(table); // a little confused on what this does
+    res.status(200).send(table);
   } catch (error) {
     res.status(500).send(error.message);
   }
