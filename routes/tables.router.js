@@ -68,7 +68,6 @@ tablesRouter.delete('/:tableName/:columnName', async (req, res) => {
         columnName,
       },
     );
-    console.log(query);
     const table = await pool.query(query, params);
     res.status(200).send(table); // a little confused on what this does
   } catch (error) {
@@ -87,7 +86,6 @@ tablesRouter.put('/:tableName/:columnName/:attributeName', async (req, res) => {
         attributeName,
       },
     );
-    console.log(query);
     const table = await pool.query(query, params);
     res.status(200).send(table); // a little confused on what this does
   } catch (error) {
