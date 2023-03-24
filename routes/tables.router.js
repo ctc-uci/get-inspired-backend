@@ -43,7 +43,7 @@ tablesRouter.post('/:tableName/:newAttributeName/:dataType', async (req, res) =>
     const { tableName, newAttributeName, dataType } = req.params;
     const [query, params] = toUnnamed(
       `ALTER TABLE ${tableName}
-    ADD \`${newAttributeName}\` ${dataType} NOT NULL;`,
+    ADD \`${newAttributeName.trim()}\` ${dataType} NOT NULL;`,
       {
         tableName,
         newAttributeName,
@@ -62,7 +62,7 @@ tablesRouter.delete('/:tableName/:columnName', async (req, res) => {
     const { tableName, columnName } = req.params;
     const [query, params] = toUnnamed(
       `ALTER TABLE ${tableName}
-    DROP COLUMN \`${columnName}\`;`,
+    DROP COLUMN \`${columnName.trim()}\`;`,
       {
         tableName,
         columnName,
@@ -79,7 +79,7 @@ tablesRouter.put('/:tableName/:columnName/:attributeName', async (req, res) => {
   try {
     const { tableName, columnName, attributeName } = req.params;
     const [query, params] = toUnnamed(
-      `ALTER TABLE ${tableName} RENAME COLUMN \`${columnName}\` TO \`${attributeName}\`;`,
+      `ALTER TABLE ${tableName} RENAME COLUMN \`${columnName}\` TO \`${attributeName.trim()}\`;`,
       {
         tableName,
         columnName,
