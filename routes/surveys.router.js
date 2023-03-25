@@ -90,16 +90,14 @@ router.post('/', async (req, res) => {
       location,
       method,
       date,
-      startDepth,
-      endDepth,
+      waterDepth,
       tide,
       duration,
       distance,
       slope,
     } = req.body;
 
-    isNumeric(startDepth);
-    isNumeric(endDepth);
+    isNumeric(waterDepth);
     isNumeric(tide);
     isNumeric(duration);
     isNumeric(distance);
@@ -113,8 +111,7 @@ router.post('/', async (req, res) => {
         location,
         method,
         date,
-        start_depth,
-        end_depth,
+        water_depth
         tide,
         duration,
         distance,
@@ -126,8 +123,7 @@ router.post('/', async (req, res) => {
         :location,
         :method,
         :date,
-        :startDepth,
-        :endDepth,
+        :waterDepth
         :tide,
         :duration,
         :distance,
@@ -140,8 +136,7 @@ router.post('/', async (req, res) => {
         location,
         method,
         date,
-        startDepth,
-        endDepth,
+        waterDepth,
         tide,
         duration,
         distance,
@@ -165,17 +160,14 @@ router.put('/:surveyId', async (req, res) => {
       location,
       method,
       date,
-      startDepth,
-      endDepth,
+      waterDepth,
       tide,
       duration,
       distance,
       slope,
     } = req.body;
-
     isNumeric(surveyId);
-    isNumeric(startDepth);
-    isNumeric(endDepth);
+    isNumeric(waterDepth);
     isNumeric(tide);
     isNumeric(duration);
     isNumeric(distance);
@@ -189,8 +181,7 @@ router.put('/:surveyId', async (req, res) => {
          ${location ? 'location = :location, ' : ''}
          ${method ? 'method = :method, ' : ''}
          ${date ? 'date = :date, ' : ''}
-         ${startDepth ? 'start_depth = :startDepth, ' : ''}
-         ${endDepth ? 'end_depth = :endDepth, ' : ''}
+         ${waterDepth ? 'water_depth = :waterDepth, ' : ''}
          ${tide ? 'tide = :tide, ' : ''}
          ${duration ? 'duration = :duration, ' : ''}
          ${distance ? 'distance = :distance, ' : ''}
@@ -204,8 +195,7 @@ router.put('/:surveyId', async (req, res) => {
         location,
         method,
         date,
-        startDepth,
-        endDepth,
+        waterDepth,
         tide,
         duration,
         distance,
