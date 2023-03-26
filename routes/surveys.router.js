@@ -90,16 +90,14 @@ router.post('/', async (req, res) => {
       location,
       method,
       date,
-      startDepth,
-      endDepth,
+      waterDepth,
       tide,
       duration,
       distance,
       slope,
     } = req.body;
 
-    isNumeric(startDepth);
-    isNumeric(endDepth);
+    isNumeric(waterDepth);
     isNumeric(tide);
     isNumeric(duration);
     isNumeric(distance);
@@ -113,8 +111,7 @@ router.post('/', async (req, res) => {
         location,
         method,
         date,
-        start_depth,
-        end_depth,
+        water_depth
         tide,
         duration,
         distance,
@@ -126,8 +123,7 @@ router.post('/', async (req, res) => {
         :location,
         :method,
         :date,
-        :startDepth,
-        :endDepth,
+        :waterDepth
         :tide,
         :duration,
         :distance,
@@ -140,8 +136,7 @@ router.post('/', async (req, res) => {
         location,
         method,
         date,
-        startDepth,
-        endDepth,
+        waterDepth,
         tide,
         duration,
         distance,
@@ -165,17 +160,14 @@ router.put('/:surveyId', async (req, res) => {
       location,
       method,
       date,
-      startDepth,
-      endDepth,
+      waterDepth,
       tide,
       duration,
       distance,
       slope,
     } = req.body;
-
     isNumeric(surveyId);
-    isNumeric(startDepth);
-    isNumeric(endDepth);
+    isNumeric(waterDepth);
     isNumeric(tide);
     isNumeric(duration);
     isNumeric(distance);
@@ -184,17 +176,16 @@ router.put('/:surveyId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-         ${beach ? 'beach_id = :beachId, ' : ''}
-         ${startTime ? 'start_time = :startTime, ' : ''}
-         ${location ? 'location = :location, ' : ''}
-         ${method ? 'method = :method, ' : ''}
-         ${date ? 'date = :date, ' : ''}
-         ${startDepth ? 'start_depth = :startDepth, ' : ''}
-         ${endDepth ? 'end_depth = :endDepth, ' : ''}
-         ${tide ? 'tide = :tide, ' : ''}
-         ${duration ? 'duration = :duration, ' : ''}
-         ${distance ? 'distance = :distance, ' : ''}
-         ${slope ? 'slope = :slope, ' : ''}
+         ${beach !== undefined ? 'beach = :beach, ' : ''}
+         ${startTime !== undefined ? 'start_time = :startTime, ' : ''}
+         ${location !== undefined ? 'location = :location, ' : ''}
+         ${method !== undefined ? 'method = :method, ' : ''}
+         ${date !== undefined ? 'date = :date, ' : ''}
+         ${waterDepth !== undefined ? 'water_depth = :waterDepth, ' : ''}
+         ${tide !== undefined ? 'tide = :tide, ' : ''}
+         ${duration !== undefined ? 'duration = :duration, ' : ''}
+         ${distance !== undefined ? 'distance = :distance, ' : ''}
+         ${slope !== undefined ? 'slope = :slope, ' : ''}
          id = :surveyId
         WHERE id = :surveyId;
       SELECT * FROM survey WHERE id = :surveyId`,
@@ -204,12 +195,12 @@ router.put('/:surveyId', async (req, res) => {
         location,
         method,
         date,
-        startDepth,
-        endDepth,
+        waterDepth,
         tide,
         duration,
         distance,
         slope,
+        surveyId,
       },
     );
     const updatedSurvey = await pool.query(query, params);
