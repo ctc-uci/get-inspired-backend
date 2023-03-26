@@ -176,16 +176,16 @@ router.put('/:surveyId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-         ${beach ? 'beach = :beach, ' : ''}
-         ${startTime ? 'start_time = :startTime, ' : ''}
-         ${location ? 'location = :location, ' : ''}
-         ${method ? 'method = :method, ' : ''}
-         ${date ? 'date = :date, ' : ''}
-         ${waterDepth ? 'water_depth = :waterDepth, ' : ''}
-         ${tide ? 'tide = :tide, ' : ''}
-         ${duration ? 'duration = :duration, ' : ''}
-         ${distance ? 'distance = :distance, ' : ''}
-         ${slope ? 'slope = :slope, ' : ''}
+         ${beach !== undefined ? 'beach = :beach, ' : ''}
+         ${startTime !== undefined ? 'start_time = :startTime, ' : ''}
+         ${location !== undefined ? 'location = :location, ' : ''}
+         ${method !== undefined ? 'method = :method, ' : ''}
+         ${date !== undefined ? 'date = :date, ' : ''}
+         ${waterDepth !== undefined ? 'water_depth = :waterDepth, ' : ''}
+         ${tide !== undefined ? 'tide = :tide, ' : ''}
+         ${duration !== undefined ? 'duration = :duration, ' : ''}
+         ${distance !== undefined ? 'distance = :distance, ' : ''}
+         ${slope !== undefined ? 'slope = :slope, ' : ''}
          id = :surveyId
         WHERE id = :surveyId;
       SELECT * FROM survey WHERE id = :surveyId`,
