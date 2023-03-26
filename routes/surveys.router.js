@@ -153,6 +153,7 @@ router.post('/', async (req, res) => {
 // update survey
 router.put('/:surveyId', async (req, res) => {
   try {
+    // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { surveyId } = req.params;
     const {
       beach,

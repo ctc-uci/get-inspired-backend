@@ -124,6 +124,7 @@ router.post('/', async (req, res) => {
 // Update clam
 router.put('/:clamId', async (req, res) => {
   try {
+    // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { clamId } = req.params;
     isNumeric(clamId);
 
@@ -139,16 +140,16 @@ router.put('/:clamId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE clam
          SET
-         ${surveyId ? 'survey_id = :surveyId, ' : ''}
-         ${name ? 'name = :name, ' : ''}
-         ${color ? 'color = :color, ' : ''}
-         ${lat ? 'lat = :lat, ' : ''}
-         ${lon ? 'lon = :lon, ' : ''}
-         ${length ? 'length = :length, ' : ''}
-         ${width ? 'width = :width, ' : ''}
-         ${weight ? 'weight = :weight, ' : ''}
-         ${comments ? 'comments = :comments, ' : ''}
-         ${image ? 'image = :image, ' : ''}
+         ${surveyId !== undefined ? 'survey_id = :surveyId, ' : ''}
+         ${name !== undefined ? 'name = :name, ' : ''}
+         ${color !== undefined ? 'color = :color, ' : ''}
+         ${lat !== undefined ? 'lat = :lat, ' : ''}
+         ${lon !== undefined ? 'lon = :lon, ' : ''}
+         ${length !== undefined ? 'length = :length, ' : ''}
+         ${width !== undefined ? 'width = :width, ' : ''}
+         ${weight !== undefined ? 'weight = :weight, ' : ''}
+         ${comments !== undefined ? 'comments = :comments, ' : ''}
+         ${image !== undefined ? 'image = :image, ' : ''}
          id = :clamId
          WHERE id = :clamId;
       SELECT * FROM clam WHERE id = :clamId;`,

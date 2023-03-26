@@ -157,6 +157,8 @@ router.delete('/:rakerId', async (req, res) => {
 // update raker
 router.put('/:rakerId', async (req, res) => {
   try {
+    const { rakerId } = req.params;
+    // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const {
       surveyId,
       number,
@@ -177,21 +179,21 @@ router.put('/:rakerId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE raker
       SET
-      ${surveyId ? 'survey_id = :surveyId, ' : ''}
-      ${number ? 'number = :number, ' : ''}
-      ${name ? 'name = :name, ' : ''}
-      ${startTime ? 'start_time = :startTime, ' : ''}
-      ${endTime ? 'end_time = :endTime, ' : ''}
-      ${startLat ? 'start_lat = :startLat, ' : ''}
-      ${startLong ? 'start_long =:startLong , ' : ''}
-      ${midLat ? 'mid_lat = :midLat, ' : ''}
-      ${midLong ? 'mid_long =:midLong , ' : ''}
-      ${endLat ? 'end_lat = :endLat, ' : ''}
-      ${endLong ? 'end_long = :endLong, ' : ''}
-      ${startDepth ? 'start_depth = :startDepth, ' : ''}
-      ${endDepth ? 'end_depth = :endDepth, ' : ''}
-      ${rakeDistance ? 'rake_distance = :rakeDistance, ' : ''}
-      ${rakeWidth ? 'rake_width = :rakeWidth, ' : ''}
+      ${surveyId !== undefined ? 'survey_id = :surveyId, ' : ''}
+      ${number !== undefined ? 'number = :number, ' : ''}
+      ${name !== undefined ? 'name = :name, ' : ''}
+      ${startTime !== undefined ? 'start_time = :startTime, ' : ''}
+      ${endTime !== undefined ? 'end_time = :endTime, ' : ''}
+      ${startLat !== undefined ? 'start_lat = :startLat, ' : ''}
+      ${startLong !== undefined ? 'start_long =:startLong , ' : ''}
+      ${midLat !== undefined ? 'mid_lat = :midLat, ' : ''}
+      ${midLong !== undefined ? 'mid_long =:midLong , ' : ''}
+      ${endLat !== undefined ? 'end_lat = :endLat, ' : ''}
+      ${endLong !== undefined ? 'end_long = :endLong, ' : ''}
+      ${startDepth !== undefined ? 'start_depth = :startDepth, ' : ''}
+      ${endDepth !== undefined ? 'end_depth = :endDepth, ' : ''}
+      ${rakeDistance !== undefined ? 'rake_distance = :rakeDistance, ' : ''}
+      ${rakeWidth !== undefined ? 'rake_width = :rakeWidth, ' : ''}
       id = :rakerId
     WHERE id = :rakerId;
     SELECT * FROM raker WHERE id = :rakerId;`,
@@ -211,6 +213,7 @@ router.put('/:rakerId', async (req, res) => {
         endDepth,
         rakeDistance,
         rakeWidth,
+        rakerId,
       },
     );
     const updatedRaker = await pool.query(query, params);
