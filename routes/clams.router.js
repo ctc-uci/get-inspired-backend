@@ -1,7 +1,7 @@
 const express = require('express');
 const toUnnamed = require('named-placeholders')();
 const { pool } = require('../server/db');
-const { keysToCamel, isNumeric } = require('../common/utils');
+const { isNumeric } = require('../common/utils');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const clams = await pool.query('SELECT * FROM clam;');
-    res.status(200).json(keysToCamel(clams));
+    res.status(200).json(clams);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -24,7 +24,7 @@ router.get('/:clamId', async (req, res) => {
     const [query, params] = toUnnamed('SELECT * FROM clam WHERE id = :clamId', { clamId });
     const clam = await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(clam));
+    res.status(200).json(clam);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -39,7 +39,7 @@ router.get('/raker/:rakerId', async (req, res) => {
     const [query, params] = toUnnamed('SELECT * FROM clam WHERE raker_id = :rakerId', { rakerId });
     const clams = await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(clams));
+    res.status(200).json(clams);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -54,7 +54,7 @@ router.get('/survey/:surveyId', async (req, res) => {
       surveyId,
     });
     const clams = await pool.query(query, params);
-    res.status(200).json(keysToCamel(clams));
+    res.status(200).json(clams);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
 
     const clam = await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(clam[1]));
+    res.status(200).json(clam[1]);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -126,51 +126,29 @@ router.put('/:clamId', async (req, res) => {
   try {
     // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { clamId } = req.params;
-    isNumeric(clamId);
-
-    const { surveyId, name, color, lat, lon, length, width, weight, comments, image } = req.body;
-
-    isNumeric(surveyId);
-    isNumeric(lat);
-    isNumeric(lon);
-    isNumeric(length);
-    isNumeric(width);
-    isNumeric(weight);
+    const columnNames = (
+      await pool.query(
+        `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
+    WHERE table_schema = "${process.env.AWS_DB_NAME}"
+    AND table_name = 'clam' AND COLUMN_NAME != 'id'`,
+      )
+    ).map((column) => column.COLUMN_NAME);
 
     const [query, params] = toUnnamed(
       `UPDATE clam
          SET
-         ${surveyId !== undefined ? 'survey_id = :surveyId, ' : ''}
-         ${name !== undefined ? 'name = :name, ' : ''}
-         ${color !== undefined ? 'color = :color, ' : ''}
-         ${lat !== undefined ? 'lat = :lat, ' : ''}
-         ${lon !== undefined ? 'lon = :lon, ' : ''}
-         ${length !== undefined ? 'length = :length, ' : ''}
-         ${width !== undefined ? 'width = :width, ' : ''}
-         ${weight !== undefined ? 'weight = :weight, ' : ''}
-         ${comments !== undefined ? 'comments = :comments, ' : ''}
-         ${image !== undefined ? 'image = :image, ' : ''}
+        ${columnNames.map((columnName) => `${columnName} = :${columnName}, `).join('')}
          id = :clamId
          WHERE id = :clamId;
       SELECT * FROM clam WHERE id = :clamId;`,
-      {
+      columnNames.reduce((dict, current) => ({ ...dict, [current]: req.body[current] }), {
         clamId,
-        surveyId,
-        name,
-        color,
-        lat,
-        lon,
-        length,
-        width,
-        weight,
-        comments,
-        image,
-      },
+      }),
     );
 
     const updatedClam = await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(updatedClam[1]));
+    res.status(200).json(updatedClam[1]);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -185,7 +163,7 @@ router.delete('/:clamId', async (req, res) => {
     const [query, params] = toUnnamed('DELETE FROM clam WHERE id = :clamId', { clamId });
     await pool.query(query, params);
 
-    res.status(200).json(keysToCamel(`Deleted clam #${clamId}`));
+    res.status(200).json(`Deleted clam #${clamId}`);
   } catch (err) {
     res.status(500).send(err.message);
   }
