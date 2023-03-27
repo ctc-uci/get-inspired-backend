@@ -156,6 +156,7 @@ router.put('/:surveyId', async (req, res) => {
     // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { surveyId } = req.params;
 
+    // Get all column names dynamically
     const columnNames = (
       await pool.query(
         `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
@@ -164,6 +165,7 @@ router.put('/:surveyId', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
+    // Update table based on all column names
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
@@ -175,6 +177,7 @@ router.put('/:surveyId', async (req, res) => {
         surveyId,
       }),
     );
+
     const updatedSurvey = await pool.query(query, params);
     res.status(200).json(updatedSurvey);
   } catch (err) {

@@ -124,8 +124,9 @@ router.post('/', async (req, res) => {
 // Update clam
 router.put('/:clamId', async (req, res) => {
   try {
-    // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { clamId } = req.params;
+
+    // Get all column names dynamically
     const columnNames = (
       await pool.query(
         `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
@@ -134,6 +135,7 @@ router.put('/:clamId', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
+    // Update table based on all column names
     const [query, params] = toUnnamed(
       `UPDATE clam
          SET
