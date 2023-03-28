@@ -10,7 +10,7 @@ const tablesRouter = express.Router();
 tablesRouter.get('/', async (req, res) => {
   try {
     const tables = await pool.query(
-      `SELECT table_name FROM information_schema.tables WHERE table_schema = "${process.env.AWS_DB_NAME}" AND table_name != 'user'`,
+      `SELECT table_name FROM information_schema.tables WHERE table_schema = "${process.env.AWS_DB_NAME}" AND table_name != 'user' ORDER BY table_name DESC`,
     );
     res.status(200).send(tables.map((table) => table.TABLE_NAME));
   } catch (error) {
