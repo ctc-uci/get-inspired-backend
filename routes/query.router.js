@@ -65,10 +65,10 @@ queryRouter.post('/generic', async (req, res) => {
     const { checkedTables, query: queryStr } = req.body;
 
     // validate checkedTables
-    if (!queryStr) {
-      res.status(400).send('Must send a query');
-      return;
-    }
+    // if (!queryStr) {
+    //   res.status(400).send('Must send a query');
+    //   return;
+    // }
     if (checkedTables.some((table) => !TABLE_NAMES.includes(table))) {
       res.status(400).send('Invalid table name');
       return;
