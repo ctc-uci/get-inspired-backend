@@ -1,7 +1,7 @@
 const express = require('express');
 const toUnnamed = require('named-placeholders')();
 const { pool } = require('../server/db');
-const { isNumeric, keysToCamel } = require('../common/utils');
+const { isNumeric } = require('../common/utils');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const survey = await pool.query('SELECT * FROM survey;');
-    res.status(200).json(keysToCamel(survey));
+    res.status(200).json(survey);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -24,7 +24,7 @@ router.get('/survey/:surveyId', async (req, res) => {
       surveyId,
     });
     const survey = await pool.query(query, params);
-    res.status(200).json(keysToCamel(survey));
+    res.status(200).json(survey);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -39,7 +39,7 @@ router.get('/beach/:beachId', async (req, res) => {
       beachId,
     });
     const surveys = await pool.query(query, params);
-    res.status(200).json(keysToCamel(surveys));
+    res.status(200).json(surveys);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -75,7 +75,7 @@ router.get('/manageDataOptions', async (req, res) => {
       ],
       [],
     );
-    res.status(200).json(keysToCamel(map));
+    res.status(200).json(map);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -98,6 +98,7 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     isNumeric(waterDepth);
+    isNumeric(tide);
     isNumeric(duration);
     isNumeric(distance);
     isNumeric(slope);
@@ -142,7 +143,7 @@ router.post('/', async (req, res) => {
       },
     );
     const survey = await pool.query(query, params);
-    res.status(200).json(keysToCamel(survey));
+    res.status(200).json(survey);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -152,62 +153,33 @@ router.post('/', async (req, res) => {
 // TODO: GET ALL COLUMNS DYNAMICALLY
 router.put('/:surveyId', async (req, res) => {
   try {
+    // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { surveyId } = req.params;
-    const {
-      beach,
-      startTime,
-      location,
-      method,
-      date,
-      startDepth,
-      endDepth,
-      tide,
-      duration,
-      distance,
-      slope,
-    } = req.body;
 
-    isNumeric(surveyId);
-    isNumeric(startDepth);
-    isNumeric(endDepth);
-    isNumeric(tide);
-    isNumeric(duration);
-    isNumeric(distance);
-    isNumeric(slope);
+    // Get all column names dynamically
+    const columnNames = (
+      await pool.query(
+        `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
+    WHERE table_schema = "${process.env.AWS_DB_NAME}"
+    AND table_name = 'survey' AND COLUMN_NAME != 'id'`,
+      )
+    ).map((column) => column.COLUMN_NAME);
 
+    // Update table based on all column names
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-         ${beach ? 'beach_id = :beachId, ' : ''}
-         ${startTime ? 'start_time = :startTime, ' : ''}
-         ${location ? 'location = :location, ' : ''}
-         ${method ? 'method = :method, ' : ''}
-         ${date ? 'date = :date, ' : ''}
-         ${startDepth ? 'start_depth = :startDepth, ' : ''}
-         ${endDepth ? 'end_depth = :endDepth, ' : ''}
-         ${tide ? 'tide = :tide, ' : ''}
-         ${duration ? 'duration = :duration, ' : ''}
-         ${distance ? 'distance = :distance, ' : ''}
-         ${slope ? 'slope = :slope, ' : ''}
+        ${columnNames.map((columnName) => `${columnName} = :${columnName}, `).join('')}
          id = :surveyId
         WHERE id = :surveyId;
       SELECT * FROM survey WHERE id = :surveyId`,
-      {
-        beach,
-        startTime,
-        location,
-        method,
-        date,
-        startDepth,
-        endDepth,
-        tide,
-        duration,
-        distance,
-        slope,
-      },
+      columnNames.reduce((dict, current) => ({ ...dict, [current]: req.body[current] }), {
+        surveyId,
+      }),
     );
+
     const updatedSurvey = await pool.query(query, params);
-    res.status(200).json(keysToCamel(updatedSurvey));
+    res.status(200).json(updatedSurvey);
   } catch (err) {
     res.status(500).send(err.message);
   }

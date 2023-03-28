@@ -2,7 +2,7 @@
 const express = require('express');
 const toUnnamed = require('named-placeholders')();
 const { pool } = require('../server/db');
-const { keysToCamel, isNumeric } = require('../common/utils');
+const { isNumeric } = require('../common/utils');
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const rakers = await pool.query('SELECT * FROM raker;');
-    res.status(200).json(keysToCamel(rakers));
+    res.status(200).json(rakers);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -25,7 +25,7 @@ router.get('/raker/:rakerId', async (req, res) => {
       rakerId,
     });
     const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker[0]));
+    res.status(200).json(raker[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -40,7 +40,7 @@ router.get('/survey/:surveyId', async (req, res) => {
       surveyId,
     });
     const rakers = await pool.query(query, params);
-    res.status(200).json(keysToCamel(rakers));
+    res.status(200).json(rakers);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -136,7 +136,7 @@ router.post('/', async (req, res) => {
       },
     );
     const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker));
+    res.status(200).json(raker);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -151,7 +151,7 @@ router.delete('/:rakerId', async (req, res) => {
       rakerId,
     });
     const raker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(raker[0]));
+    res.status(200).json(raker[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -160,64 +160,32 @@ router.delete('/:rakerId', async (req, res) => {
 // update raker
 router.put('/:rakerId', async (req, res) => {
   try {
-    const {
-      surveyId,
-      number,
-      name,
-      startTime,
-      endTime,
-      startLat,
-      startLong,
-      midLat,
-      midLong,
-      endLat,
-      endLong,
-      startDepth,
-      endDepth,
-      rakeDistance,
-      rakeWidth,
-    } = req.body;
+    const { rakerId } = req.params;
+
+    // Get all column names dynamically
+    const columnNames = (
+      await pool.query(
+        `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
+    WHERE table_schema = "${process.env.AWS_DB_NAME}"
+    AND table_name = 'raker' AND COLUMN_NAME != 'id'`,
+      )
+    ).map((column) => column.COLUMN_NAME);
+
+    // Update table based on all columns
     const [query, params] = toUnnamed(
       `UPDATE raker
       SET
-      ${surveyId ? 'survey_id = :surveyId, ' : ''}
-      ${number ? 'number = :number, ' : ''}
-      ${name ? 'name = :name, ' : ''}
-      ${startTime ? 'start_time = :startTime, ' : ''}
-      ${endTime ? 'end_time = :endTime, ' : ''}
-      ${startLat ? 'start_lat = :startLat, ' : ''}
-      ${startLong ? 'start_long =:startLong , ' : ''}
-      ${midLat ? 'mid_lat = :midLat, ' : ''}
-      ${midLong ? 'mid_long =:midLong , ' : ''}
-      ${endLat ? 'end_lat = :endLat, ' : ''}
-      ${endLong ? 'end_long = :endLong, ' : ''}
-      ${startDepth ? 'start_depth = :startDepth, ' : ''}
-      ${endDepth ? 'end_depth = :endDepth, ' : ''}
-      ${rakeDistance ? 'rake_distance = :rakeDistance, ' : ''}
-      ${rakeWidth ? 'rake_width = :rakeWidth, ' : ''}
+       ${columnNames.map((columnName) => `${columnName} = :${columnName}, `).join('')}
       id = :rakerId
     WHERE id = :rakerId;
     SELECT * FROM raker WHERE id = :rakerId;`,
-      {
-        surveyId,
-        number,
-        name,
-        startTime,
-        endTime,
-        startLat,
-        startLong,
-        midLat,
-        midLong,
-        endLat,
-        endLong,
-        startDepth,
-        endDepth,
-        rakeDistance,
-        rakeWidth,
-      },
+      columnNames.reduce((dict, current) => ({ ...dict, [current]: req.body[current] }), {
+        rakerId,
+      }),
     );
+
     const updatedRaker = await pool.query(query, params);
-    res.status(200).json(keysToCamel(updatedRaker[0]));
+    res.status(200).json(updatedRaker[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
