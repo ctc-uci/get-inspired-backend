@@ -95,7 +95,7 @@ router.post('/', async (req, res) => {
     const [query, params] = toUnnamed(
       `
       INSERT INTO survey (
-       ${columnNames.join()}
+       ${columnNames.map((columnName) => `\`${columnName}\``).join()}
         )
       VALUES (
         ${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()}
