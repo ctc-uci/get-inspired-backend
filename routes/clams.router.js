@@ -120,7 +120,10 @@ router.put('/:clamId', async (req, res) => {
          WHERE id = :clamId;
       SELECT * FROM clam WHERE id = :clamId;`,
       columnNames.reduce(
-        (dict, current) => ({ ...dict, [current.replace(/\s+/g, '_')]: req.body[current] }),
+        (dict, current) => ({
+          ...dict,
+          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : '',
+        }),
         {
           clamId,
         },

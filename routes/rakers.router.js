@@ -69,7 +69,10 @@ router.post('/', async (req, res) => {
     );
     SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
       columnNames.reduce(
-        (acc, current) => ({ ...acc, [current.replace(/\s+/g, '_')]: req.body[current] }),
+        (acc, current) => ({
+          ...acc,
+          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : null,
+        }),
         {},
       ),
     );
