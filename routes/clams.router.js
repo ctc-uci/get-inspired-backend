@@ -61,58 +61,32 @@ router.get('/survey/:surveyId', async (req, res) => {
 });
 
 // Create clam
+// TODO: GET ALL COLUMNS DYNAMICALLY
 router.post('/', async (req, res) => {
   try {
-    const { surveyId, name, color, lat, lon, length, width, weight, comments, image } = req.body;
-
-    isNumeric(surveyId);
-    isNumeric(lat);
-    isNumeric(lon);
-    isNumeric(length);
-    isNumeric(width);
-    isNumeric(weight);
+    // Get all column names dynamically
+    const columnNames = (
+      await pool.query(
+        `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
+    WHERE table_schema = "${process.env.AWS_DB_NAME}"
+    AND table_name = 'clam' AND COLUMN_NAME != 'id'`,
+      )
+    ).map((column) => column.COLUMN_NAME);
 
     const [query, params] = toUnnamed(
       `
       INSERT INTO clam (
-        survey_id,
-        name,
-        color,
-        lat,
-        lon,
-        length,
-        width,
-        weight,
-        comments,
-        image
+      ${columnNames.map((columnName) => `\`${columnName}\``).join()}
         )
       VALUES (
-        :surveyId,
-        :name,
-        :color,
-        :lat,
-        :lon,
-        :length,
-        :width,
-        :weight,
-        :comments,
-        :image
+        ${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()}
       );
       SELECT * FROM clam WHERE id = LAST_INSERT_ID();`,
-      {
-        surveyId,
-        name,
-        color,
-        lat,
-        lon,
-        length,
-        width,
-        weight,
-        comments,
-        image,
-      },
+      columnNames.reduce(
+        (acc, current) => ({ ...acc, [current.replace(/\s+/g, '_')]: req.body[current] }),
+        {},
+      ),
     );
-
     const clam = await pool.query(query, params);
 
     res.status(200).json(clam[1]);
@@ -139,13 +113,21 @@ router.put('/:clamId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE clam
          SET
-        ${columnNames.map((columnName) => `${columnName} = :${columnName}, `).join('')}
+        ${columnNames
+          .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
+          .join('')}
          id = :clamId
          WHERE id = :clamId;
       SELECT * FROM clam WHERE id = :clamId;`,
-      columnNames.reduce((dict, current) => ({ ...dict, [current]: req.body[current] }), {
-        clamId,
-      }),
+      columnNames.reduce(
+        (dict, current) => ({
+          ...dict,
+          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : '',
+        }),
+        {
+          clamId,
+        },
+      ),
     );
 
     const updatedClam = await pool.query(query, params);

@@ -50,7 +50,7 @@ const surveyInfoToSummary = ({ formatted_date: formattedDate, beach_id: beachId,
 };
 
 // Build the date to survey map
-router.get('/manageDataOptions', async (req, res) => {
+router.get('/existingSurveyOptions', async (req, res) => {
   try {
     const years = await pool.query(`SELECT DISTINCT YEAR(date) AS year FROM survey`);
     const surveyPromises = years.map((year) =>
@@ -84,64 +84,30 @@ router.get('/manageDataOptions', async (req, res) => {
 // create survey
 router.post('/', async (req, res) => {
   try {
-    const {
-      beach,
-      startTime,
-      location,
-      method,
-      date,
-      waterDepth,
-      tide,
-      duration,
-      distance,
-      slope,
-    } = req.body;
-
-    isNumeric(waterDepth);
-    isNumeric(tide);
-    isNumeric(duration);
-    isNumeric(distance);
-    isNumeric(slope);
+    const columnNames = (
+      await pool.query(
+        `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
+    WHERE table_schema = "${process.env.AWS_DB_NAME}"
+    AND table_name = 'survey' AND COLUMN_NAME != 'id'`,
+      )
+    ).map((column) => column.COLUMN_NAME);
 
     const [query, params] = toUnnamed(
       `
       INSERT INTO survey (
-        beach,
-        start_time,
-        location,
-        method,
-        date,
-        water_depth
-        tide,
-        duration,
-        distance,
-        slope,
+       ${columnNames.map((columnName) => `\`${columnName}\``).join()}
         )
       VALUES (
-        :beach,
-        :startTime,
-        :location,
-        :method,
-        :date,
-        :waterDepth
-        :tide,
-        :duration,
-        :distance,
-        :slope,
+        ${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()}
       );
       SELECT * FROM survey WHERE id = LAST_INSERT_ID();`,
-      {
-        beach,
-        startTime,
-        location,
-        method,
-        date,
-        waterDepth,
-        tide,
-        duration,
-        distance,
-        slope,
-      },
+      columnNames.reduce(
+        (dict, current) => ({
+          ...dict,
+          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : '',
+        }),
+        {},
+      ),
     );
     const survey = await pool.query(query, params);
     res.status(200).json(survey);
@@ -151,9 +117,9 @@ router.post('/', async (req, res) => {
 });
 
 // update survey
+// TODO: GET ALL COLUMNS DYNAMICALLY
 router.put('/:surveyId', async (req, res) => {
   try {
-    // TODO: UPDATE ALL COLUMNS DYNAMICALLY
     const { surveyId } = req.params;
 
     // Get all column names dynamically
@@ -169,13 +135,18 @@ router.put('/:surveyId', async (req, res) => {
     const [query, params] = toUnnamed(
       `UPDATE survey
          SET
-        ${columnNames.map((columnName) => `${columnName} = :${columnName}, `).join('')}
+        ${columnNames
+          .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
+          .join('')}
          id = :surveyId
         WHERE id = :surveyId;
       SELECT * FROM survey WHERE id = :surveyId`,
-      columnNames.reduce((dict, current) => ({ ...dict, [current]: req.body[current] }), {
-        surveyId,
-      }),
+      columnNames.reduce(
+        (dict, current) => ({ ...dict, [current.replace(/\s+/g, '_')]: req.body[current] }),
+        {
+          surveyId,
+        },
+      ),
     );
 
     const updatedSurvey = await pool.query(query, params);
