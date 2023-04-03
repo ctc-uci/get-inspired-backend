@@ -42,7 +42,7 @@ authRouter.get('/verifyToken/:accessToken', async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(accessToken);
     return res.status(200).send(decodedToken.uid);
   } catch (err) {
-    return res.status.send('@verifyToken no access token');
+    return res.status(200).send('@verifyToken no access token');
   }
 });
 

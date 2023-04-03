@@ -97,8 +97,8 @@ userRouter.put('/:id', async (req, res) => {
     );
     const updatedUser = await pool.query(query, params);
     await admin.auth().updateUser(id, {
-      email: email.length ? email : undefined,
-      password: password.length ? password : undefined,
+      email: email?.length ? email : undefined,
+      password: password?.length ? password : undefined,
     });
     res.status(200).json(keysToCamel(updatedUser));
   } catch (err) {
