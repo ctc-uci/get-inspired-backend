@@ -81,6 +81,26 @@ router.get('/existingSurveyOptions', async (req, res) => {
   }
 });
 
+router.get('/dashboardSurveyOptions', async (req, res) => {
+  try {
+    const beaches = await pool.query('SELECT * FROM survey');
+    const formattedSurveys = beaches.reduce((acc, survey) => {
+      const formattedBeachKey = survey.beach.replace(
+        /(\w)(\w*)/g,
+        (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase(),
+      );
+      return {
+        ...acc,
+        [formattedBeachKey]:
+          formattedBeachKey in acc ? [...acc[formattedBeachKey], survey] : [survey],
+      };
+    }, {});
+    res.status(200).send(formattedSurveys);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 // create survey
 router.post('/', async (req, res) => {
   try {
