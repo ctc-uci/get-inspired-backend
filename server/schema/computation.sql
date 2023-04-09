@@ -1,5 +1,5 @@
 CREATE TABLE computation (
-	survey_id INTEGER UNIQUE REFERENCES survey.id,
+	survey_id INTEGER PRIMARY KEY REFERENCES survey.id,
     `# people` INTEGER NOT NULL DEFAULT 0,
     `# clams found` INTEGER NOT NULL DEFAULT 0,
     `# man hours` DECIMAL (65, 3) NOT NULL DEFAULT 0,
