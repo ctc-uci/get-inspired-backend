@@ -108,7 +108,7 @@ AFTER INSERT ON raker
 FOR EACH ROW
 BEGIN
     UPDATE computation
-    SET `# man hours` = `# man hours` + HOUR(TIMEDIFF(end_time, start_time)) + MINUTE(TIMEDIFF(end_time, start_time)) / 60
+    SET `# man hours` = `# man hours` + HOUR(TIMEDIFF(NEW.end_time, NEW.start_time)) + MINUTE(TIMEDIFF(NEW.end_time, NEW.start_time)) / 60
     WHERE computation.survey_id = NEW.survey_id;
 END;
 
@@ -117,7 +117,7 @@ AFTER DELETE ON raker
 FOR EACH ROW
 BEGIN
     UPDATE computation
-    SET `# man hours` = `# man hours` - HOUR(TIMEDIFF(end_time, start_time)) + MINUTE(TIMEDIFF(OLD.end_time, OLD.start_time)) / 60
+    SET `# man hours` = `# man hours` - HOUR(TIMEDIFF(OLD.end_time, OLD.start_time)) + MINUTE(TIMEDIFF(OLD.end_time, OLD.start_time)) / 60
     WHERE computation.survey_id = OLD.survey_id;
 END;
 
