@@ -121,15 +121,6 @@ BEGIN
     WHERE computation.survey_id = OLD.survey_id;
 END;
 
-CREATE TRIGGER add_num_man_hours
-AFTER UPDATE ON raker
-FOR EACH ROW
-BEGIN
-    UPDATE computation
-    SET `# man hours` = IFNULL((SELECT HOUR(TIMEDIFF(end_time, start_time)) + MINUTE(TIMEDIFF(end_time, start_time)) / 60 FROM raker WHERE raker.survey_id = computation.survey_id), 0)
-    WHERE computation.survey_id = NEW.survey_id;
-END;
-
 CREATE TRIGGER update_distance
 AFTER UPDATE on survey
 FOR EACH ROW
