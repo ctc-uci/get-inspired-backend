@@ -103,7 +103,7 @@ BEGIN
       WHERE computation.survey_id = OLD.survey_id;
 END;
 
-CREATE TRIGGER add_num_man_hours
+CREATE TRIGGER update_num_man_hours
 AFTER INSERT ON raker
 FOR EACH ROW
 BEGIN
