@@ -153,86 +153,10 @@ FOR EACH ROW
 BEGIN
     UPDATE computation
     SET
-        `# clams found` = `# clams found` - 1 WHERE computation.survey_id = OLD.survey_id;
+        `# clams found` = `# clams found` - 1,
         `clams/man hr` = IFNULL((SELECT COUNT(*) from clam WHERE clam.survey_id = OLD.survey_id) / (SELECT SUM(HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60) FROM raker WHERE raker.survey_id = OLD.survey_id), 0),
         `clam density` = IFNULL(((SELECT COUNT(*) from clam WHERE clam.survey_id = OLD.survey_id) / (SELECT SUM(`Rake Width` * `Rake Distance`) FROM raker WHERE raker.survey_id = OLD.survey_id)), 0),
         `avg weight` = IFNULL((SELECT AVG(Weight) FROM clam WHERE clam.survey_id = OLD.survey_id), 0),
         `avg width` = IFNULL((SELECT AVG(Width) FROM clam WHERE clam.survey_id = OLD.survey_id), 0)
     WHERE computation.survey_id = OLD.survey_id;
-END;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CREATE TRIGGER add_num_ppl
-AFTER INSERT ON raker
-FOR EACH ROW
-BEGIN
-      UPDATE computation
-      SET `# people` = `# people` + 1
-      WHERE computation.survey_id = NEW.survey_id;
-END;
-
-CREATE TRIGGER subtract_num_ppl
-AFTER DELETE ON raker
-FOR EACH ROW
-BEGIN
-      UPDATE computation
-      SET `# people` = `# people` - 1
-      WHERE computation.survey_id = OLD.survey_id;
-END;
-
-CREATE TRIGGER add_clam_found
-AFTER INSERT ON clam
-FOR EACH ROW
-BEGIN
-      UPDATE computation
-      SET `# clams found` = `# clams found` + 1
-      WHERE computation.survey_id = NEW.survey_id;
-END;
-
-CREATE TRIGGER subtract_clam_found
-AFTER DELETE ON clam
-FOR EACH ROW
-BEGIN
-      UPDATE computation
-      SET `# clams found` = `# clams found` - 1
-      WHERE computation.survey_id = OLD.survey_id;
-END;
-
-CREATE TRIGGER add_num_man_hours
-AFTER INSERT ON raker
-FOR EACH ROW
-BEGIN
-    UPDATE computation
-    SET `# man hours` = `# man hours` + HOUR(TIMEDIFF(NEW.`End Time`, NEW.`Start Time`)) + MINUTE(TIMEDIFF(NEW.`End Time`, NEW.`Start Time`)) / 60
-    WHERE computation.survey_id = NEW.survey_id;
-END;
-
-CREATE TRIGGER subtract_num_man_hours
-AFTER DELETE ON raker
-FOR EACH ROW
-BEGIN
-    UPDATE computation
-    SET `# man hours` = `# man hours` - HOUR(TIMEDIFF(OLD.`End Time`, OLD.`Start Time`)) + MINUTE(TIMEDIFF(OLD.`End Time`, OLD.`Start Time`)) / 60
-    WHERE computation.survey_id = OLD.survey_id;
-END;
-
-CREATE TRIGGER update_distance
-AFTER UPDATE on survey
-FOR EACH ROW
-BEGIN
-    UPDATE computation
-    SET `distance covered` = IFNULL((SELECT Distance FROM survey WHERE survey.id = NEW.id), 0)
-    WHERE computation.survey_id = NEW.id;
 END;
