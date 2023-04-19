@@ -29,7 +29,7 @@ const checkedFieldsToSQLJoin = (checkedFields) => {
     if (index === 0) return curr;
     const prev = tableNames.at(index - 1);
     const isCurrSurveyTable = curr === 'survey';
-    const isPrevSurveyTable = tableNames.at(index - 1) === 'survey';
+    const isPrevSurveyTable = prev === 'survey';
     const prevAttribute = isPrevSurveyTable ? 'id' : 'survey_id';
     const currAttribute = isCurrSurveyTable ? 'id' : 'survey_id';
     return `${acc} LEFT JOIN ${curr} ON ${prev}.${prevAttribute} = ${curr}.${currAttribute}`;
