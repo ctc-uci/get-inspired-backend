@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 // get computations from surveyid
-router.get('/:computationId', async (req, res) => {
+router.get('/survey/:surveyId', async (req, res) => {
   try {
     const { surveyId } = req.params;
     isNumeric(surveyId);
