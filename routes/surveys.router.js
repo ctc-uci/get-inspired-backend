@@ -45,14 +45,14 @@ router.get('/beach/:beachId', async (req, res) => {
   }
 });
 
-const surveyInfoToSummary = ({ formatted_date: formattedDate, beach, location }) => {
-  return `${formattedDate} - ${beach} - ${location}`;
+const surveyInfoToSummary = ({ formatted_date: formattedDate, Beach, Location }) => {
+  return `${formattedDate} - ${Beach} - ${Location}`;
 };
 
 // Build the date to survey map
 router.get('/existingSurveyOptions', async (req, res) => {
   try {
-    const years = await pool.query(`SELECT DISTINCT YEAR(date) AS year FROM survey`);
+    const years = await pool.query(`SELECT DISTINCT YEAR(Date) AS year FROM survey`);
     const surveyPromises = years.map((year) =>
       pool.query(
         `SELECT *, DATE_FORMAT(date, '%M %d %Y') as formatted_date FROM survey WHERE YEAR(date) = ${year.year}`,
@@ -76,6 +76,28 @@ router.get('/existingSurveyOptions', async (req, res) => {
       [],
     );
     res.status(200).json(map);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+router.get('/dashboardSurveyOptions', async (req, res) => {
+  try {
+    const beaches = await pool.query(
+      'SELECT * FROM survey INNER JOIN computation ON survey.id = computation.survey_id',
+    );
+    const formattedSurveys = beaches.reduce((acc, survey) => {
+      const formattedBeachKey = survey.Beach.replace(
+        /(\w)(\w*)/g,
+        (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase(),
+      );
+      return {
+        ...acc,
+        [formattedBeachKey]:
+          formattedBeachKey in acc ? [...acc[formattedBeachKey], survey] : [survey],
+      };
+    }, {});
+    res.status(200).send(formattedSurveys);
   } catch (err) {
     res.status(500).send(err.message);
   }

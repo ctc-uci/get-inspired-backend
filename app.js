@@ -6,6 +6,7 @@ const usersRouter = require('./routes/user.router');
 const surveysRouter = require('./routes/surveys.router');
 const rakersRouter = require('./routes/rakers.router');
 const clamsRouter = require('./routes/clams.router');
+const computationsRouter = require('./routes/computations.router');
 const tablesRouter = require('./routes/tables.router');
 const queryRouter = require('./routes/query.router');
 const csvRouter = require('./routes/csv.router');
@@ -37,6 +38,7 @@ app.use('/auth', authRouter);
 // TODO: Verify tokens after LOFI is done
 app.use('/surveys', surveysRouter);
 app.use('/clams', clamsRouter);
+app.use('/computations', computationsRouter);
 app.use('/rakers', rakersRouter);
 app.use('/tables', tablesRouter);
 app.use('/query', queryRouter);
