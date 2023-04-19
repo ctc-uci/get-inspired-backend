@@ -7,7 +7,7 @@ const { pool } = require('../server/db');
 
 const queryRouter = express.Router();
 
-const TABLE_NAMES = ['survey', 'raker', 'clam'];
+const TABLE_NAMES = ['survey', 'raker', 'clam', 'computation'];
 
 // Advanced Search: given a series of checkedFields, generate the associated SELECT clause
 const checkedFieldsToSQLSelect = (checkedFields) => {
@@ -21,40 +21,23 @@ const checkedFieldsToSQLSelect = (checkedFields) => {
 };
 
 // Advanced Search: from a series of checked fields, generate the necesary joins
-const checkedFieldsToSQLJoin = (checkedFields) => {
-  const isArray = Array.isArray(checkedFields);
-  const surveySelected = (isArray && checkedFields.includes('survey')) || 'survey' in checkedFields;
-  const rakerSelected = (isArray && checkedFields.includes('raker')) || 'raker' in checkedFields;
-  const clamSelected = (isArray && checkedFields.includes('clam')) || 'clam' in checkedFields;
-
-  let res = '';
-  // All 3 tables selected
-  if (surveySelected && rakerSelected && clamSelected) {
-    res = `survey
-      LEFT JOIN raker ON survey.id = raker.survey_id
-      LEFT JOIN clam ON survey.id = clam.survey_id`;
-    // Survey and raker selected
-  } else if (surveySelected && rakerSelected) {
-    res = `survey LEFT JOIN raker ON survey.id = raker.survey_id`;
-    // Survey and clam selected
-  } else if (surveySelected && clamSelected) {
-    res = `survey LEFT JOIN clam ON survey.id = clam.survey_id`;
-    // Raker and clam selected
-  } else if (rakerSelected && clamSelected) {
-    res = 'clam LEFT JOIN raker ON clam.survey_id = raker.survey_id';
-    // Survey selected
-  } else if (surveySelected) {
-    res = 'survey';
-    // Clam selected
-  } else if (clamSelected) {
-    res = 'clam';
-    // Raker selected
-  } else if (rakerSelected) {
-    res = 'raker';
-    // Should never happen
-  } else {
-    res = 'survey';
-  }
+const checkedFieldsToSQLJoin = (checkedFields, whereClause) => {
+  const tableNames = Array.isArray(checkedFields)
+    ? checkedFields // Generic search
+    : Object.keys(checkedFields)
+        .filter((field) => TABLE_NAMES.includes(field))
+        .concat(
+          TABLE_NAMES.filter((table) => !(table in checkedFields) && whereClause.includes(table)),
+        ); // Advanced search
+  const res = tableNames.reduce((acc, curr, index) => {
+    if (index === 0) return curr;
+    const prev = tableNames.at(index - 1);
+    const isCurrSurveyTable = curr === 'survey';
+    const isPrevSurveyTable = prev === 'survey';
+    const prevAttribute = isPrevSurveyTable ? 'id' : 'survey_id';
+    const currAttribute = isCurrSurveyTable ? 'id' : 'survey_id';
+    return `${acc} LEFT JOIN ${curr} ON ${prev}.${prevAttribute} = ${curr}.${currAttribute}`;
+  }, '');
   return res;
 };
 
@@ -95,8 +78,6 @@ queryRouter.post('/advanced', async (req, res) => {
     // Convert checkedFields to sqlCols
     const querySelect = checkedFieldsToSQLSelect(checkedFields);
 
-    const queryJoin = checkedFieldsToSQLJoin(checkedFields);
-
     // Convert tree from JSON object to an SQL where clause
     // (NOTE andrew): probably could do some validation on each of the fields, should investigate
     const config = {
@@ -106,6 +87,8 @@ queryRouter.post('/advanced', async (req, res) => {
     };
     const value = Utils.checkTree(Utils.loadFromJsonLogic(jsonLogic, config), config);
     const queryWhere = Utils.sqlFormat(value, config);
+
+    const queryJoin = checkedFieldsToSQLJoin(checkedFields, queryWhere);
 
     const results = await pool.query(
       `SELECT DISTINCT ${querySelect}
