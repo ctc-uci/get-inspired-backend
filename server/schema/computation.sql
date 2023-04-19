@@ -9,5 +9,6 @@ CREATE TABLE computation (
     `area raked` DECIMAL (65, 3) NOT NULL DEFAULT 0,
     `total time raking` DECIMAL (65, 3) NOT NULL DEFAULT 0,
     `avg weight` DECIMAL (65, 3) NOT NULL DEFAULT 0,
-    `avg width`  DECIMAL (65, 3) NOT NULL DEFAULT 0
-);
+    `avg width`  DECIMAL (65, 3) NOT NULL DEFAULT 0,
+    `avg length` DECIMAL (65, 3) NOT NULL DEFAULT 0
+ );

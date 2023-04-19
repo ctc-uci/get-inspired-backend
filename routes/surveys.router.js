@@ -52,7 +52,7 @@ const surveyInfoToSummary = ({ formatted_date: formattedDate, beach, location })
 // Build the date to survey map
 router.get('/existingSurveyOptions', async (req, res) => {
   try {
-    const years = await pool.query(`SELECT DISTINCT YEAR(date) AS year FROM survey`);
+    const years = await pool.query(`SELECT DISTINCT YEAR(Date) AS year FROM survey`);
     const surveyPromises = years.map((year) =>
       pool.query(
         `SELECT *, DATE_FORMAT(date, '%M %d %Y') as formatted_date FROM survey WHERE YEAR(date) = ${year.year}`,
@@ -83,9 +83,11 @@ router.get('/existingSurveyOptions', async (req, res) => {
 
 router.get('/dashboardSurveyOptions', async (req, res) => {
   try {
-    const beaches = await pool.query('SELECT * FROM survey');
+    const beaches = await pool.query(
+      'SELECT * FROM survey INNER JOIN computation ON survey.id = computation.survey_id',
+    );
     const formattedSurveys = beaches.reduce((acc, survey) => {
-      const formattedBeachKey = survey.beach.replace(
+      const formattedBeachKey = survey.Beach.replace(
         /(\w)(\w*)/g,
         (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase(),
       );

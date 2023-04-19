@@ -102,8 +102,8 @@ router.put('/:computationId', async (req, res) => {
       `UPDATE computations
       SET
        ${columnNames
-        .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
-        .join('')}
+         .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
+         .join('')}
       id = :computationId
     WHERE id = :computationId;
     SELECT * FROM computation WHERE id = :computationId;`,
