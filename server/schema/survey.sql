@@ -1,13 +1,13 @@
 CREATE TABLE survey(
   id INTEGER PRIMARY KEY AUTO_INCREMENT,
-  beach TEXT NOT NULL,
-  start_time TIME NOT NULL,
-  location TEXT NOT NULL,
-  method TEXT NOT NULL,
-  date DATE NOT NULL,
-  water_depth DOUBLE NOT NULL,
-  tide TEXT NOT NULL,
-  duration INTEGER NOT NULL,
-  distance DOUBLE NOT NULL,
-  slope DOUBLE NOT NULL
+  [Beach] TEXT NOT NULL,
+  [Start Time] TIME NOT NULL,
+  [Location] TEXT NOT NULL,
+  [Method] TEXT NOT NULL,
+  [Date] DATE NOT NULL,
+  [Water Depth] DOUBLE NOT NULL,
+  [Tide] TEXT NOT NULL,
+  [Duration] INTEGER NOT NULL,
+  [Distance] DOUBLE NOT NULL,
+  [Slope] DOUBLE NOT NULL
 );
