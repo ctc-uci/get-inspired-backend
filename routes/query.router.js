@@ -21,10 +21,14 @@ const checkedFieldsToSQLSelect = (checkedFields) => {
 };
 
 // Advanced Search: from a series of checked fields, generate the necesary joins
-const checkedFieldsToSQLJoin = (checkedFields) => {
+const checkedFieldsToSQLJoin = (checkedFields, whereClause) => {
   const tableNames = Array.isArray(checkedFields)
-    ? checkedFields
-    : Object.keys(checkedFields).filter((field) => TABLE_NAMES.includes(field));
+    ? checkedFields // Generic search
+    : Object.keys(checkedFields)
+        .filter((field) => TABLE_NAMES.includes(field))
+        .concat(
+          TABLE_NAMES.filter((table) => !(table in checkedFields) && whereClause.includes(table)),
+        ); // Advanced search
   const res = tableNames.reduce((acc, curr, index) => {
     if (index === 0) return curr;
     const prev = tableNames.at(index - 1);
@@ -74,8 +78,6 @@ queryRouter.post('/advanced', async (req, res) => {
     // Convert checkedFields to sqlCols
     const querySelect = checkedFieldsToSQLSelect(checkedFields);
 
-    const queryJoin = checkedFieldsToSQLJoin(checkedFields);
-
     // Convert tree from JSON object to an SQL where clause
     // (NOTE andrew): probably could do some validation on each of the fields, should investigate
     const config = {
@@ -85,6 +87,8 @@ queryRouter.post('/advanced', async (req, res) => {
     };
     const value = Utils.checkTree(Utils.loadFromJsonLogic(jsonLogic, config), config);
     const queryWhere = Utils.sqlFormat(value, config);
+
+    const queryJoin = checkedFieldsToSQLJoin(checkedFields, queryWhere);
 
     const results = await pool.query(
       `SELECT DISTINCT ${querySelect}
