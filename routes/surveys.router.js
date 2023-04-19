@@ -45,8 +45,8 @@ router.get('/beach/:beachId', async (req, res) => {
   }
 });
 
-const surveyInfoToSummary = ({ formatted_date: formattedDate, beach, location }) => {
-  return `${formattedDate} - ${beach} - ${location}`;
+const surveyInfoToSummary = ({ formatted_date: formattedDate, Beach, Location }) => {
+  return `${formattedDate} - ${Beach} - ${Location}`;
 };
 
 // Build the date to survey map
