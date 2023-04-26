@@ -27,7 +27,9 @@ const checkedFieldsToSQLJoin = (checkedFields, whereClause) => {
     : Object.keys(checkedFields)
         .filter((field) => TABLE_NAMES.includes(field))
         .concat(
-          TABLE_NAMES.filter((table) => !(table in checkedFields) && whereClause.includes(table)),
+          TABLE_NAMES.filter(
+            (table) => !(table in checkedFields) && (!whereClause || whereClause.includes(table)),
+          ),
         ); // Advanced search
   const res = tableNames.reduce((acc, curr, index) => {
     if (index === 0) return curr;
