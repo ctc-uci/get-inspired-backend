@@ -111,10 +111,10 @@ FOR EACH ROW
 BEGIN
     UPDATE computation
     SET
-      `# man hours` = IFNULL((SELECT HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60 FROM raker WHERE raker.survey_id = NEW.survey_id), 0),
-      `clams/man hr` = IFNULL((SELECT COUNT(*) from clam WHERE clam.survey_id = NEW.survey_id) / (SELECT SUM(HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60) FROM raker WHERE raker.survey_id = NEW.survey_id), 0),
-      `clam density` = IFNULL(((SELECT COUNT(*) from clam WHERE clam.survey_id = NEW.survey_id) / (SELECT SUM(`Rake Width` * `Rake Distance`) FROM raker WHERE raker.survey_id = NEW.survey_id)), 0),
-      `area raked` = IFNULL((SELECT SUM(`Rake Width` * `Rake Distance`) FROM raker WHERE raker.survey_id = NEW.survey_id), 0)
+        `# man hours` = IFNULL((SELECT SUM(HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60) FROM raker WHERE raker.survey_id = NEW.survey_id), 0),
+        `clams/man hr` = IFNULL((SELECT COUNT(*) from clam WHERE clam.survey_id = NEW.survey_id) / (SELECT SUM(HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60) FROM raker WHERE raker.survey_id = NEW.survey_id), 0),
+        `clam density` = IFNULL(((SELECT COUNT(*) from clam WHERE clam.survey_id = NEW.survey_id) / (SELECT SUM(`Rake Width` * `Rake Distance`) FROM raker WHERE raker.survey_id = NEW.survey_id)), 0),
+        `area raked` = IFNULL((SELECT SUM(`Rake Width` * `Rake Distance`) FROM raker WHERE raker.survey_id = NEW.survey_id), 0)
     WHERE computation.survey_id = NEW.survey_id;
 END;//
 delimiter ;
