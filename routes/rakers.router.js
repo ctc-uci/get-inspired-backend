@@ -59,19 +59,17 @@ router.post('/', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
-    const values = req.body.rakers.map((row) => {
-      const newRow = {};
-      columnNames.forEach((columnName) => {
-        newRow[columnName] = row[columnName] ? row[columnName] : null;
+    const getRowData = (rowData) => {
+      return columnNames.map((col) => {
+        if (col == 'survey_id') {
+          console.log('yes i am adidng the survey id');
+          return req.body.survey_id;
+        } else {
+          return rowData[col] ? rowData[col] : null;
+        }
       });
-      newRow['survey_id'] = req.body.survey_id;
-      return newRow;
-    });
-    console.log(
-      values
-        .map((value) => `(${columnNames.map((columnName) => value[columnName]).join()}),`)
-        .join(''),
-    );
+    };
+
     // console.log(values);
     const [query, params] = toUnnamed(
       `
@@ -79,18 +77,28 @@ router.post('/', async (req, res) => {
         ${columnNames.map((columnName) => `\`${columnName}\``).join()}
       )
       VALUES
-      ${values
-        .map((value) => `(${columnNames.map((columnName) => value[columnName]).join()}),`)
-        .join('')}
+      ${req.body.rakers
+        .map(
+          (aRaker) =>
+            `(${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()})`,
+        )
+        .join(',')};
+
       SELECT * FROM raker WHERE id = LAST_INSERT_ID();
     `,
-      values,
+      req.body.rakers
+        .map((rowData) => getRowData(rowData))
+        .reduce((acc, row) => acc.concat(row), []),
     );
+    console.log('um hello?');
     console.log(query);
+    console.log(params);
     const raker = await pool.query(query, params);
+    console.log(raker);
     res.status(200).json(raker);
   } catch (err) {
     res.status(500).send(err.message);
+    console.log(err.message);
   }
 });
 // delete raker
