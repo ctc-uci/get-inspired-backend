@@ -59,10 +59,11 @@ router.post('/', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
+    console.log(columnNames);
+
     const getRowData = (rowData) => {
       return columnNames.map((col) => {
         if (col == 'survey_id') {
-          console.log('yes i am adidng the survey id');
           return req.body.survey_id;
         } else {
           return rowData[col] ? rowData[col] : null;
@@ -86,8 +87,15 @@ router.post('/', async (req, res) => {
 
       SELECT * FROM raker WHERE id = LAST_INSERT_ID();
     `,
+      // req.body.rakers
+      //   .map((rowData) => getRowData(rowData))
+      //   .reduce((acc, row) => acc.concat(row), []),
       req.body.rakers
-        .map((rowData) => getRowData(rowData))
+        .map((rowData) => {
+          const rowDataArray = getRowData(rowData);
+          console.log(rowDataArray);
+          return rowDataArray;
+        })
         .reduce((acc, row) => acc.concat(row), []),
     );
     console.log('um hello?');
