@@ -59,30 +59,40 @@ router.post('/', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
+    const values = req.body.rakers.map((row) => {
+      const newRow = {};
+      columnNames.forEach((columnName) => {
+        newRow[columnName] = row[columnName] ? row[columnName] : null;
+      });
+      newRow['survey_id'] = req.body.survey_id;
+      return newRow;
+    });
+    console.log(
+      values
+        .map((value) => `(${columnNames.map((columnName) => value[columnName]).join()}),`)
+        .join(''),
+    );
+    // console.log(values);
     const [query, params] = toUnnamed(
       `
-    INSERT INTO raker (
-      ${columnNames.map((columnName) => `\`${columnName}\``).join()}
-    )
-    VALUES (
-     ${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()}
+      INSERT INTO raker (
+        ${columnNames.map((columnName) => `\`${columnName}\``).join()}
+      )
+      VALUES
+      ${values
+        .map((value) => `(${columnNames.map((columnName) => value[columnName]).join()}),`)
+        .join('')}
+      SELECT * FROM raker WHERE id = LAST_INSERT_ID();
+    `,
+      values,
     );
-    SELECT * FROM raker WHERE id = LAST_INSERT_ID();`,
-      columnNames.reduce(
-        (acc, current) => ({
-          ...acc,
-          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : null,
-        }),
-        {},
-      ),
-    );
+    console.log(query);
     const raker = await pool.query(query, params);
     res.status(200).json(raker);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
-
 // delete raker
 router.delete('/:rakerId', async (req, res) => {
   try {
