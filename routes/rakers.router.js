@@ -59,19 +59,6 @@ router.post('/', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
-    console.log(columnNames);
-
-    const getRowData = (rowData) => {
-      return columnNames.map((col) => {
-        if (col == 'survey_id') {
-          return req.body.survey_id;
-        } else {
-          return rowData[col] ? rowData[col] : null;
-        }
-      });
-    };
-
-    // console.log(values);
     const [query, params] = toUnnamed(
       `
       INSERT INTO raker (
@@ -80,29 +67,29 @@ router.post('/', async (req, res) => {
       VALUES
       ${req.body.rakers
         .map(
-          (aRaker) =>
-            `(${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()})`,
+          (aRaker, index) =>
+            `(${columnNames
+              .map((columnName) => `:${columnName.replace(/\s+/g, '_') + index}`)
+              .join()})`,
         )
         .join(',')};
 
       SELECT * FROM raker WHERE id = LAST_INSERT_ID();
     `,
-      // req.body.rakers
-      //   .map((rowData) => getRowData(rowData))
-      //   .reduce((acc, row) => acc.concat(row), []),
       req.body.rakers
-        .map((rowData) => {
-          const rowDataArray = getRowData(rowData);
-          console.log(rowDataArray);
-          return rowDataArray;
+        .map((rakerDict, index) => {
+          const dict = {};
+          Object.keys(rakerDict).forEach((key) => {
+            dict[`${key.replace(/\s+/g, '_')}${index}`] = rakerDict[key];
+          });
+          dict[`survey_id${index}`] = req.body.survey_id;
+          return dict;
         })
-        .reduce((acc, row) => acc.concat(row), []),
+        .reduce((acc, dict) => Object.assign(acc, dict), {}),
     );
-    console.log('um hello?');
-    console.log(query);
-    console.log(params);
+    // console.log(query);
+    // console.log(params);
     const raker = await pool.query(query, params);
-    console.log(raker);
     res.status(200).json(raker);
   } catch (err) {
     res.status(500).send(err.message);
