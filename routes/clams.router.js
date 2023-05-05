@@ -69,29 +69,45 @@ router.post('/', async (req, res) => {
       await pool.query(
         `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
     WHERE table_schema = "${process.env.AWS_DB_NAME}"
-    AND table_name = 'clam' AND COLUMN_NAME != 'id'`,
+    AND table_name = 'raker' AND COLUMN_NAME != 'id'`,
       )
     ).map((column) => column.COLUMN_NAME);
 
     const [query, params] = toUnnamed(
       `
-      INSERT INTO clam (
-      ${columnNames.map((columnName) => `\`${columnName}\``).join()}
+      INSERT INTO raker (
+        ${columnNames.map((columnName) => `\`${columnName}\``).join()}
+      )
+      VALUES
+      ${req.body.clams
+        .map(
+          (aClam, index) =>
+            `(${columnNames
+              .map((columnName) => `:${columnName.replace(/\s+/g, '_') + index}`)
+              .join()})`,
         )
-      VALUES (
-        ${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()}
-      );
-      SELECT * FROM clam WHERE id = LAST_INSERT_ID();`,
-      columnNames.reduce(
-        (acc, current) => ({ ...acc, [current.replace(/\s+/g, '_')]: req.body[current] }),
-        {},
-      ),
-    );
-    const clam = await pool.query(query, params);
+        .join(',')};
 
-    res.status(200).json(clam[1]);
+      SELECT * FROM raker WHERE id = LAST_INSERT_ID();
+    `,
+      req.body.clams
+        .map((clamDict, index) => {
+          const dict = {};
+          Object.keys(clamDict).forEach((key) => {
+            dict[`${key.replace(/\s+/g, '_')}${index}`] = clamDict[key];
+          });
+          dict[`survey_id${index}`] = req.body.survey_id;
+          return dict;
+        })
+        .reduce((acc, dict) => Object.assign(acc, dict), {}),
+    );
+    // console.log(query);
+    // console.log(params);
+    const clam = await pool.query(query, params);
+    res.status(200).json(clam);
   } catch (err) {
     res.status(500).send(err.message);
+    console.log(err.message);
   }
 });
 
