@@ -95,7 +95,7 @@ AFTER INSERT on raker
 FOR EACH ROW
 BEGIN
     SET @total_raker_inserts = IFNULL(@total_raker_inserts, -1) + 1;
-    IF @total_raker_inserts = ROW_COUNT() THEN
+    IF @total_raker_inserts >= ROW_COUNT() THEN
       UPDATE computation
       SET
           `# people` = IFNULL((SELECT COUNT(*) from raker WHERE raker.survey_id = NEW.survey_id), 0),
@@ -116,7 +116,7 @@ AFTER UPDATE on raker
 FOR EACH ROW
 BEGIN
     SET @total_raker_updates = IFNULL(@total_raker_updates, -1) + 1;
-    IF @total_raker_updates = ROW_COUNT() THEN
+    IF @total_raker_updates >= ROW_COUNT() THEN
       UPDATE computation
       SET
           `# man hours` = IFNULL((SELECT SUM(HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60) FROM raker WHERE raker.survey_id = NEW.survey_id), 0),
@@ -136,7 +136,7 @@ AFTER DELETE on raker
 FOR EACH ROW
 BEGIN
     SET @total_raker_deletes = IFNULL(@total_raker_deletes, -1) + 1;
-    IF @total_raker_deletes = ROW_COUNT() THEN
+    IF @total_raker_deletes >= ROW_COUNT() THEN
       UPDATE computation
         SET
           `# people` = IFNULL((SELECT COUNT(*) from raker WHERE raker.survey_id = OLD.survey_id), 0),
@@ -146,7 +146,7 @@ BEGIN
           `area raked` = IFNULL((SELECT SUM(`Rake Width` * `Rake Distance`) FROM raker WHERE raker.survey_id = OLD.survey_id), 0)
         WHERE computation.survey_id = OLD.survey_id;
 
-      SET @total_raker_deletes = NULL;
+        SET @total_raker_deletes = NULL;
     END IF;
 END;//
 delimiter ;
@@ -157,7 +157,7 @@ AFTER INSERT on clam
 FOR EACH ROW
 BEGIN
     SET @total_clam_inserts = IFNULL(@total_clam_inserts, - 1) + 1;
-    IF @total_clam_inserts = ROW_COUNT() THEN
+    IF @total_clam_inserts >= ROW_COUNT() THEN
         UPDATE computation
         SET
             `# clams found` = IFNULL((SELECT COUNT(*) FROM clam WHERE clam.survey_id = NEW.survey_id), 0),
@@ -167,7 +167,8 @@ BEGIN
             `avg width` = IFNULL((SELECT AVG(Width) FROM clam WHERE clam.survey_id = NEW.survey_id), 0),
             `avg length` = IFNULL((SELECT AVG(Length) FROM clam WHERE clam.survey_id = NEW.survey_id), 0)
         WHERE computation.survey_id = NEW.survey_id;
-    SET @total_clam_inserts = NULL;
+
+        SET @total_clam_inserts = NULL;
     END IF;
 END;//
 delimiter ;
@@ -178,7 +179,7 @@ AFTER UPDATE on clam
 FOR EACH ROW
 BEGIN
     SET @total_clam_updates = IFNULL(@total_clam_updates, - 1) + 1;
-    IF @total_clam_updates = ROW_COUNT() THEN
+    IF @total_clam_updates >= ROW_COUNT() THEN
       UPDATE computation
       SET
           `clams/man hr` = IFNULL((SELECT COUNT(*) FROM clam WHERE clam.survey_id = NEW.survey_id) / (SELECT SUM(HOUR(TIMEDIFF(`End Time`, `Start Time`)) + MINUTE(TIMEDIFF(`End Time`, `Start Time`)) / 60) FROM raker WHERE raker.survey_id = NEW.survey_id), 0),
@@ -187,8 +188,9 @@ BEGIN
           `avg width` = IFNULL((SELECT AVG(Width) FROM clam WHERE clam.survey_id = NEW.survey_id), 0),
           `avg length` = IFNULL((SELECT AVG(Length) FROM clam WHERE clam.survey_id = NEW.survey_id), 0)
       WHERE computation.survey_id = NEW.survey_id;
+
       SET @total_clam_updates = NULL;
-    END IF;
+      END IF;
 END;//
 delimiter ;
 
@@ -198,7 +200,7 @@ AFTER DELETE on clam
 FOR EACH ROW
 BEGIN
     SET @total_clam_deletes = IFNULL(@total_clam_deletes, - 1) + 1;
-    IF @total_clam_deletes = ROW_COUNT() THEN
+    IF @total_clam_deletes >= ROW_COUNT() THEN
         UPDATE computation
         SET
             `# clams found` = IFNULL((SELECT COUNT(*) FROM clam WHERE clam.survey_id = OLD.survey_id), 0),
@@ -209,7 +211,7 @@ BEGIN
             `avg length` = IFNULL((SELECT AVG(Length) FROM clam WHERE clam.survey_id = OLD.survey_id), 0)
         WHERE computation.survey_id = OLD.survey_id;
 
-    SET @total_clam_deletes = NULL;
+        SET @total_clam_deletes = NULL;
     END IF;
 END;//
 delimiter ;

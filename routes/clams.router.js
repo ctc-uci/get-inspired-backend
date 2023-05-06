@@ -69,13 +69,13 @@ router.post('/', async (req, res) => {
       await pool.query(
         `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
     WHERE table_schema = "${process.env.AWS_DB_NAME}"
-    AND table_name = 'raker' AND COLUMN_NAME != 'id'`,
+    AND table_name = 'clam' AND COLUMN_NAME != 'id'`,
       )
     ).map((column) => column.COLUMN_NAME);
 
     const [query, params] = toUnnamed(
       `
-      INSERT INTO raker (
+      INSERT INTO clam (
         ${columnNames.map((columnName) => `\`${columnName}\``).join()}
       )
       VALUES
@@ -88,7 +88,7 @@ router.post('/', async (req, res) => {
         )
         .join(',')};
 
-      SELECT * FROM raker WHERE id = LAST_INSERT_ID();
+      SELECT * FROM clam WHERE id = LAST_INSERT_ID();
     `,
       req.body.clams
         .map((clamDict, index) => {
@@ -107,7 +107,6 @@ router.post('/', async (req, res) => {
     res.status(200).json(clam);
   } catch (err) {
     res.status(500).send(err.message);
-    console.log(err.message);
   }
 });
 

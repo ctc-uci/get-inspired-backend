@@ -3,8 +3,8 @@ CREATE TABLE clam (
     survey_id INTEGER NOT NULL,
     [Name] TEXT NOT NULL,
     [Color] TEXT NOT NULL,
-    [Lat] DOUBLE NOT NULL,]
-    [Lon] DOUBLE NOT NULL,
+    [Lat] DOUBLE NOT NULL,
+    [Long] DOUBLE NOT NULL,
     [Length] DOUBLE NOT NULL,
     [Width] DOUBLE NOT NULL,
     [Weight] DOUBLE NOT NULL,

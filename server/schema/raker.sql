@@ -1,7 +1,7 @@
 CREATE TABLE raker(
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     survey_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
+    [Name] TEXT NOT NULL,
     [Start Time] DATETIME NOT NULL,
     [End Time] DATETIME NOT NULL,
     [Start Lat] DOUBLE NOT NULL,
