@@ -97,14 +97,12 @@ router.post('/', async (req, res) => {
   }
 });
 // delete raker
-router.delete('/:rakerId', async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
-    const { rakerId } = req.params;
-    isNumeric(rakerId);
-    const [query, params] = toUnnamed(`DELETE from raker WHERE id = :rakerId;`, {
-      rakerId,
-    });
+    const ids = req.query.ids.split(',').map(Number);
+    const [query, params] = toUnnamed(`DELETE from raker WHERE id IN (:ids);`, { ids });
     const raker = await pool.query(query, params);
+
     res.status(200).json(raker[0]);
   } catch (err) {
     res.status(500).send(err.message);
@@ -115,7 +113,7 @@ router.delete('/:rakerId', async (req, res) => {
 router.put('/:rakerId', async (req, res) => {
   try {
     const { rakerId } = req.params;
-
+    console.log(req.body);
     // Get all column names dynamically
     const columnNames = (
       await pool.query(

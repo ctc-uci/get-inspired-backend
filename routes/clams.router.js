@@ -154,15 +154,13 @@ router.put('/:clamId', async (req, res) => {
 });
 
 // Delete clam
-router.delete('/:clamId', async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
-    const { clamId } = req.params;
-    isNumeric(clamId);
+    const ids = req.query.ids.split(',').map(Number);
+    const [query, params] = toUnnamed(`DELETE from clam WHERE id IN (:ids);`, { ids });
+    const clam = await pool.query(query, params);
 
-    const [query, params] = toUnnamed('DELETE FROM clam WHERE id = :clamId', { clamId });
-    await pool.query(query, params);
-
-    res.status(200).json(`Deleted clam #${clamId}`);
+    res.status(200).json(clam[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
