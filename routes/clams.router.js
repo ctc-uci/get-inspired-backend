@@ -111,9 +111,9 @@ router.post('/', async (req, res) => {
 });
 
 // Update clam
-router.put('/:clamId', async (req, res) => {
+router.put('/', async (req, res) => {
   try {
-    const { clamId } = req.params;
+    const clamIds = Object.keys(req.body);
 
     // Get all column names dynamically
     const columnNames = (
@@ -124,30 +124,37 @@ router.put('/:clamId', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
-    // Update table based on all column names
+    const setClause = columnNames
+      .map((column) => {
+        const cases = clamIds
+          .map(
+            (clamId) =>
+              `WHEN id = :clamId_${clamId} THEN :${column.replace(/\s+/g, '_')}_clamId_${clamId}`,
+          )
+          .join(' ');
+        return `\`${column}\` = CASE ${cases} ELSE \`${column}\` END`;
+      })
+      .join(', ');
+
+    const theParams = clamIds.reduce((result, clamId) => {
+      const clamData = req.body[clamId];
+      const updatedResult = { ...result }; // Create a new object to avoid modifying the parameter directly
+      Object.keys(clamData).forEach((column) => {
+        updatedResult[`${column.replace(/\s+/g, '_')}_clamId_${clamId}`] = clamData[column];
+      });
+      updatedResult[`clamId_${clamId}`] = clamId;
+      return updatedResult;
+    }, {});
+
+    // Update table based on all columns
     const [query, params] = toUnnamed(
-      `UPDATE clam
-         SET
-        ${columnNames
-          .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
-          .join('')}
-         id = :clamId
-         WHERE id = :clamId;
-      SELECT * FROM clam WHERE id = :clamId;`,
-      columnNames.reduce(
-        (dict, current) => ({
-          ...dict,
-          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : '',
-        }),
-        {
-          clamId,
-        },
-      ),
+      `UPDATE clam SET ${setClause} WHERE id IN (${clamIds.join(', ')});
+                   SELECT * FROM clam WHERE id IN (${clamIds.join(', ')});`,
+      theParams,
     );
 
     const updatedClam = await pool.query(query, params);
-
-    res.status(200).json(updatedClam[1]);
+    res.status(200).json(updatedClam[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }

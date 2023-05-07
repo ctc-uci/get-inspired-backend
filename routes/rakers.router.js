@@ -110,10 +110,10 @@ router.delete('/', async (req, res) => {
 });
 
 // update raker
-router.put('/:rakerId', async (req, res) => {
+router.put('/', async (req, res) => {
   try {
-    const { rakerId } = req.params;
-    console.log(req.body);
+    const rakerIds = Object.keys(req.body);
+
     // Get all column names dynamically
     const columnNames = (
       await pool.query(
@@ -123,23 +123,38 @@ router.put('/:rakerId', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
+    const setClause = columnNames
+      .map((column) => {
+        const cases = rakerIds
+          .map(
+            (rakerId) =>
+              `WHEN id = :rakerId_${rakerId} THEN :${column.replace(
+                /\s+/g,
+                '_',
+              )}_rakerId_${rakerId}`,
+          )
+          .join(' ');
+        return `\`${column}\` = CASE ${cases} ELSE \`${column}\` END`;
+      })
+      .join(', ');
+
+    const theParams = rakerIds.reduce((result, rakerId) => {
+      const rakerData = req.body[rakerId];
+      const updatedResult = { ...result }; // Create a new object to avoid modifying the parameter directly
+      Object.keys(rakerData).forEach((column) => {
+        updatedResult[`${column.replace(/\s+/g, '_')}_rakerId_${rakerId}`] = rakerData[column];
+      });
+      updatedResult[`rakerId_${rakerId}`] = rakerId;
+      return updatedResult;
+    }, {});
+
     // Update table based on all columns
     const [query, params] = toUnnamed(
-      `UPDATE raker
-      SET
-       ${columnNames
-         .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
-         .join('')}
-      id = :rakerId
-    WHERE id = :rakerId;
-    SELECT * FROM raker WHERE id = :rakerId;`,
-      columnNames.reduce(
-        (dict, current) => ({ ...dict, [current.replace(/\s+/g, '_')]: req.body[current] }),
-        {
-          rakerId,
-        },
-      ),
+      `UPDATE raker SET ${setClause} WHERE id IN (${rakerIds.join(', ')});
+                   SELECT * FROM raker WHERE id IN (${rakerIds.join(', ')});`,
+      theParams,
     );
+
     const updatedRaker = await pool.query(query, params);
     res.status(200).json(updatedRaker[0]);
   } catch (err) {
