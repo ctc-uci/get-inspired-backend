@@ -140,9 +140,9 @@ router.post('/', async (req, res) => {
 
 // update survey
 // TODO: GET ALL COLUMNS DYNAMICALLY
-router.put('/:surveyId', async (req, res) => {
+router.put('/', async (req, res) => {
   try {
-    const { surveyId } = req.params;
+    const surveyIds = Object.keys(req.body);
 
     // Get all column names dynamically
     const columnNames = (
@@ -153,43 +153,55 @@ router.put('/:surveyId', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
-    // Update table based on all column names
+    const setClause = columnNames
+      .map((column) => {
+        const cases = surveyIds
+          .map(
+            (surveyId) =>
+              `WHEN id = :surveyId_${surveyId} THEN :${column.replace(
+                /\s+/g,
+                '_',
+              )}_surveyId_${surveyId}`,
+          )
+          .join(' ');
+        return `\`${column}\` = CASE ${cases} ELSE \`${column}\` END`;
+      })
+      .join(', ');
+
+    const theParams = surveyIds.reduce((result, surveyId) => {
+      const surveyData = req.body[surveyId];
+      const updatedResult = { ...result }; // Create a new object to avoid modifying the parameter directly
+      Object.keys(surveyData).forEach((column) => {
+        updatedResult[`${column.replace(/\s+/g, '_')}_surveyId_${surveyId}`] = surveyData[column];
+      });
+      updatedResult[`surveyId_${surveyId}`] = surveyId;
+      return updatedResult;
+    }, {});
+
+    // Update table based on all columns
     const [query, params] = toUnnamed(
-      `UPDATE survey
-         SET
-        ${columnNames
-          .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
-          .join('')}
-         id = :surveyId
-        WHERE id = :surveyId;
-      SELECT * FROM survey WHERE id = :surveyId`,
-      columnNames.reduce(
-        (dict, current) => ({ ...dict, [current.replace(/\s+/g, '_')]: req.body[current] }),
-        {
-          surveyId,
-        },
-      ),
+      `UPDATE survey SET ${setClause} WHERE id IN (${surveyIds.join(', ')});
+                   SELECT * FROM survey WHERE id IN (${surveyIds.join(', ')});`,
+      theParams,
     );
 
     const updatedSurvey = await pool.query(query, params);
-    res.status(200).json(updatedSurvey);
+    res.status(200).json(updatedSurvey[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
 // delete survey
-router.delete('/:surveyId', async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
-    const { surveyId } = req.params;
-    const [query, params] = toUnnamed(`DELETE from survey WHERE id = :surveyId;`, {
-      surveyId,
-    });
-    await pool.query(query, params);
-    res.status(200).send(`Deleted survey with id ${surveyId}`);
+    const ids = req.query.ids.split(',').map(Number);
+    const [query, params] = toUnnamed(`DELETE from survey WHERE id IN (:ids);`, { ids });
+    const survey = await pool.query(query, params);
+
+    res.status(200).json(survey[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
-
 module.exports = router;
