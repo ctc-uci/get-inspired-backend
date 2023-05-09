@@ -61,7 +61,6 @@ router.get('/survey/:surveyId', async (req, res) => {
 });
 
 // Create clam
-// TODO: GET ALL COLUMNS DYNAMICALLY
 router.post('/', async (req, res) => {
   try {
     // Get all column names dynamically
@@ -76,29 +75,43 @@ router.post('/', async (req, res) => {
     const [query, params] = toUnnamed(
       `
       INSERT INTO clam (
-      ${columnNames.map((columnName) => `\`${columnName}\``).join()}
+        ${columnNames.map((columnName) => `\`${columnName}\``).join()}
+      )
+      VALUES
+      ${req.body.clams
+        .map(
+          (aClam, index) =>
+            `(${columnNames
+              .map((columnName) => `:${columnName.replace(/\s+/g, '_') + index}`)
+              .join()})`,
         )
-      VALUES (
-        ${columnNames.map((columnName) => `:${columnName.replace(/\s+/g, '_')}`).join()}
-      );
-      SELECT * FROM clam WHERE id = LAST_INSERT_ID();`,
-      columnNames.reduce(
-        (acc, current) => ({ ...acc, [current.replace(/\s+/g, '_')]: req.body[current] }),
-        {},
-      ),
-    );
-    const clam = await pool.query(query, params);
+        .join(',')};
 
-    res.status(200).json(clam[1]);
+      SELECT * FROM clam WHERE id = LAST_INSERT_ID();
+    `,
+      req.body.clams
+        .map((clamDict, index) => {
+          const dict = {};
+          Object.keys(clamDict).forEach((key) => {
+            dict[`${key.replace(/\s+/g, '_')}${index}`] = clamDict[key];
+          });
+          dict[`survey_id${index}`] = req.body.survey_id;
+          return dict;
+        })
+        .reduce((acc, dict) => Object.assign(acc, dict), {}),
+    );
+
+    const clam = await pool.query(query, params);
+    res.status(200).json(clam);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
 // Update clam
-router.put('/:clamId', async (req, res) => {
+router.put('/', async (req, res) => {
   try {
-    const { clamId } = req.params;
+    const clamIds = Object.keys(req.body);
 
     // Get all column names dynamically
     const columnNames = (
@@ -109,45 +122,50 @@ router.put('/:clamId', async (req, res) => {
       )
     ).map((column) => column.COLUMN_NAME);
 
-    // Update table based on all column names
+    const setClause = columnNames
+      .map((column) => {
+        const cases = clamIds
+          .map(
+            (clamId) =>
+              `WHEN id = :clamId_${clamId} THEN :${column.replace(/\s+/g, '_')}_clamId_${clamId}`,
+          )
+          .join(' ');
+        return `\`${column}\` = CASE ${cases} ELSE \`${column}\` END`;
+      })
+      .join(', ');
+
+    const theParams = clamIds.reduce((result, clamId) => {
+      const clamData = req.body[clamId];
+      const updatedResult = { ...result }; // Create a new object to avoid modifying the parameter directly
+      Object.keys(clamData).forEach((column) => {
+        updatedResult[`${column.replace(/\s+/g, '_')}_clamId_${clamId}`] = clamData[column];
+      });
+      updatedResult[`clamId_${clamId}`] = clamId;
+      return updatedResult;
+    }, {});
+
+    // Update table based on all columns
     const [query, params] = toUnnamed(
-      `UPDATE clam
-         SET
-        ${columnNames
-          .map((columnName) => `\`${columnName}\` = :${columnName.replace(/\s+/g, '_')}, `)
-          .join('')}
-         id = :clamId
-         WHERE id = :clamId;
-      SELECT * FROM clam WHERE id = :clamId;`,
-      columnNames.reduce(
-        (dict, current) => ({
-          ...dict,
-          [current.replace(/\s+/g, '_')]: req.body[current] ? req.body[current] : '',
-        }),
-        {
-          clamId,
-        },
-      ),
+      `UPDATE clam SET ${setClause} WHERE id IN (${clamIds.join(', ')});
+                   SELECT * FROM clam WHERE id IN (${clamIds.join(', ')});`,
+      theParams,
     );
 
     const updatedClam = await pool.query(query, params);
-
-    res.status(200).json(updatedClam[1]);
+    res.status(200).json(updatedClam[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
 // Delete clam
-router.delete('/:clamId', async (req, res) => {
+router.delete('/', async (req, res) => {
   try {
-    const { clamId } = req.params;
-    isNumeric(clamId);
+    const ids = req.query.ids.split(',').map(Number);
+    const [query, params] = toUnnamed(`DELETE from clam WHERE id IN (:ids);`, { ids });
+    const clam = await pool.query(query, params);
 
-    const [query, params] = toUnnamed('DELETE FROM clam WHERE id = :clamId', { clamId });
-    await pool.query(query, params);
-
-    res.status(200).json(`Deleted clam #${clamId}`);
+    res.status(200).json(clam[0]);
   } catch (err) {
     res.status(500).send(err.message);
   }
