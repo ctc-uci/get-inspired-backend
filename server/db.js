@@ -8,6 +8,7 @@ const pool = mysql.createPool({
   password: process.env.AWS_PASSWORD,
   multipleStatements: true,
   database: process.env.AWS_DB_NAME,
+  timezone: 'UTC',
 });
 
 pool.getConnection((e, connection) => {
