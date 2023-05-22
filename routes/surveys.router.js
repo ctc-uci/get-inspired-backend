@@ -88,7 +88,7 @@ router.get('/dashboardSurveyOptions', async (req, res) => {
     );
     const formattedSurveys = beaches.reduce((acc, survey) => {
       const formattedBeachKey = survey.Beach.replace(
-        /(\w)(\w*)/g,
+        /([\w'])([\w']*)/g,
         (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase(),
       );
       return {
