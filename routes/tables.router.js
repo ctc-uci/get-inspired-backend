@@ -23,9 +23,12 @@ tablesRouter.get('/:table/columns', async (req, res) => {
   try {
     const { table } = req.params;
     const [query, params] = toUnnamed(
-      `SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
-    WHERE table_schema = "${process.env.AWS_DB_NAME}"
-    AND table_name = :table`,
+      `
+        SELECT COLUMN_NAME, DATA_TYPE from information_schema.columns
+        WHERE table_schema = "${process.env.AWS_DB_NAME}"
+        AND table_name = :table
+        ORDER BY ORDINAL_POSITION
+      `,
       {
         table,
       },
