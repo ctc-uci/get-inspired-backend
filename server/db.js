@@ -17,6 +17,7 @@ pool.getConnection((e, connection) => {
       PROTOCOL_CONNECTION_LOST: 'Database connection was closed.',
       ER_CON_COUNT_ERROR: 'Database has too many connections.',
       ECONNREFUSED: 'Database connection was refused.',
+      ENOTFOUND: 'Could not find the address: double check the RDS URl in the .env file?',
     };
     // eslint-disable-line
     console.error(codes[e.code]);
