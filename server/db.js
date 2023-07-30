@@ -20,7 +20,7 @@ pool.getConnection((e, connection) => {
       ENOTFOUND: 'Could not find the address: double check the RDS URl in the .env file?',
     };
     // eslint-disable-line
-    console.error(codes[e.code]);
+    console.error(codes[e.code] || e);
   }
   if (connection) {
     // eslint-disable-line
