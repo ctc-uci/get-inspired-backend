@@ -47,7 +47,6 @@ router.get('/survey/:surveyId', async (req, res) => {
 });
 
 // create raker
-// TODO: GET ALL COLUMNS DYNAMICALLY
 router.post('/', async (req, res) => {
   try {
     // Get all column names dynamically
@@ -87,8 +86,6 @@ router.post('/', async (req, res) => {
         })
         .reduce((acc, dict) => Object.assign(acc, dict), {}),
     );
-    // console.log(query);
-    // console.log(params);
     const raker = await pool.query(query, params);
     res.status(200).json(raker);
   } catch (err) {
@@ -96,6 +93,7 @@ router.post('/', async (req, res) => {
     console.log(err.message);
   }
 });
+
 // delete raker
 router.delete('/', async (req, res) => {
   try {

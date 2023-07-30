@@ -1,7 +1,7 @@
 CREATE TABLE user(
   id          VARCHAR(255) PRIMARY KEY,
-  email       VARCHAR(255),
-  role        ENUM('admin', 'intern'),
-  first_name  VARCHAR(50),
-  last_name   VARCHAR(50)
+  email       TEXT NOT NULL,
+  role        ENUM('admin', 'intern') NOT NULL,
+  first_name  TEXT NOT NULL,
+  last_name   TEXT NOT NULL
 );
