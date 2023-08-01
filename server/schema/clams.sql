@@ -9,5 +9,7 @@ CREATE TABLE clam (
     `Weight`    DOUBLE,
     `Color`     TEXT,
     `Comments`  TEXT,
-    FOREIGN KEY (survey_id) REFERENCES survey(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (survey_id) REFERENCES survey(id)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
 );
